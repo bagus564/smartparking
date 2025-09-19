@@ -1,10 +1,10 @@
 # 🅿️ Parkwell –  Data driven smart parking system powered by IoT and Big data analytic 
 
 Tim PBL IF-18, Yang Beranggotakan: <br>
-3312311003 - Tarich Ziad <br>
-3312301067 - Ardian Zahran <br>
-3312301068 - Muhammad Haziq Afif Hidayat <br>
-3312311123 - Arwindo <br>
+3312411073 - Bagus Tri Wibowo <br>
+3312411087 - Alif rizqullah <br>
+3312411045 - Gandhi Mahesa <br>
+3312411032 - Ruth Yohana Manurung <br>
 
 
 <img width="2844" height="1527" alt="Screenshot 2025-07-20 084658" src="https://github.com/user-attachments/assets/a2a8d030-cb71-4396-8886-e7232ac99922" />
