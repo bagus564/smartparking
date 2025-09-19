@@ -84,44 +84,26 @@ def reservation_view(request):
     two_weeks = today + timedelta(days=14)
 
     if request.method == 'POST':
-        print("POST request received")
-        print("Raw POST data:", request.POST)
-
         # Ambil data dari form
         date_str = request.POST.get('date')
         start_hour = request.POST.get('start_time')
         end_hour = request.POST.get('end_time')
-        spot_number = request.POST.get('slot')  # name="slot" di HTML
+        spot_number = request.POST.get('slot')
 
-        # Validasi form kosong
         if not all([date_str, start_hour, end_hour, spot_number]):
-            return render(request, 'reservation.html', {
-                'error': 'Please fill all fields',
-                'today': today.strftime('%Y-%m-%d'),
-                'two_weeks': two_weeks.strftime('%Y-%m-%d')
-            })
-
-        # Validasi tipe spot_number
-        try:
-            spot_number = int(spot_number)
-        except ValueError:
-            messages.error(request, "Invalid slot selected.")
+            messages.error(request, "Please fill all fields")
             return redirect('reservation')
 
-        # Ambil objek Spot
+        # Ambil spot
         try:
-            spot = Spot.objects.get(spot_number=spot_number)
+            spot = Spot.objects.get(spot_number=int(spot_number))
         except Spot.DoesNotExist:
             messages.error(request, "Selected slot not found.")
             return redirect('reservation')
 
-        # Cek apakah spot dinonaktifkan
         if spot.is_disabled:
-            return render(request, 'reservation.html', {
-                'error': 'This parking slot is currently disabled by admin.',
-                'today': today.strftime('%Y-%m-%d'),
-                'two_weeks': two_weeks.strftime('%Y-%m-%d')
-            })
+            messages.error(request, "This parking slot is currently disabled by admin.")
+            return redirect('reservation')
 
         # Konversi waktu
         try:
@@ -134,22 +116,32 @@ def reservation_view(request):
             return redirect('reservation')
 
         # Simpan reservasi
-        reservation = Reservation.objects.create(
-            user=request.user,
-            spot=spot,
-            start_time=start_datetime,
-            end_time=end_datetime,
-        )
+        reservation = Reservation.objects.create(user=request.user, spot=spot, start_time=start_datetime, end_time=end_datetime)
 
-        return redirect('reservationdetails', reservation_id=reservation.id)
+        # Opsional: langsung tambah mobil
+        brand = request.POST.get('dropdown1')
+        model = request.POST.get('dropdown2')
+        color = request.POST.get('color')
+        plate1 = request.POST.get('plate1')
+        plate2 = request.POST.get('plate2')
+        plate3 = request.POST.get('plate3')
+        uploaded_image = request.FILES.get('imageUpload')
 
-    # GET request: tampilkan form kosong
+        if all([brand, model, color, plate1, plate2, plate3]):
+            license_plate = f"{plate1} {plate2} {plate3.strip().upper()}"
+            car = Car.objects.create(user=request.user, brand=brand, model=model, color=color, license_plate=license_plate, image=uploaded_image)
+            reservation.car = car
+            reservation.save()
+
+        return redirect('history')
+
+    # GET request
     return render(request, 'reservation.html', {
         'today': today.strftime('%Y-%m-%d'),
         'two_weeks': two_weeks.strftime('%Y-%m-%d'),
+        'spots': Spot.objects.all()
     })
 
-latest_data = {"distance": "Belum ada data"}
 
 def status_view(request):
     spots = Spot.objects.all()

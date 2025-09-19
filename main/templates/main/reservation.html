@@ -20,7 +20,7 @@
 
 
         <div class="md:px-12 px-8 md:my-20 my-4 md:mx-12 flex flex-col">
-        <form action="" method="POST">
+        <form action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
 
@@ -94,9 +94,181 @@
                             <option value="23:00">23:00</option>
                         </select>
                 </div>
+                </div>
+
+                <div id="car_form"
+     class="w-full md:w-4/5 mx-auto 
+            grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 
+            overflow-hidden transition-all duration-500 ease-in-out 
+            max-h-0 opacity-0"
+     style="margin-top:10px;">
+                <div class="mr-0">
+                <label for="brand" class="block mb-2 text-sm font-medium text-gray-600">Brand:</label>
+                <select name="dropdown1" id="id_dropdown1" class="bg-white border border-[#0F044C] text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    <option value="" class="hidden">Choose</option>
+                    <option value="Audi">Audi</option>
+                    <option value="BMW">BMW</option>
+                    <option value="BYD">BYD</option>
+                    <option value="Chery">Chery</option>
+                    <option value="Chevrolet">Chevrolet</option>
+                    <option value="Daihatsu">Daihatsu</option>
+                    <option value="Ford">Ford</option>
+                    <option value="Honda">Honda</option>
+                    <option value="Hyundai">Hyundai</option>
+                    <option value="Isuzu">Isuzu</option>
+                    <option value="Jaguar">Jaguar</option>
+                    <option value="Kia">Kia</option>
+                    <option value="Land Rover">Land Rover</option>
+                    <option value="Lexus">Lexus</option>
+                    <option value="Mercedes-Benz">Mercedes-Benz</option>
+                    <option value="MG">MG</option>
+                    <option value="Mini">Mini</option>
+                    <option value="Mitsubishi">Mitsubishi</option>
+                    <option value="Nissan">Nissan</option>
+                    <option value="Peugeot">Peugeot</option>
+                    <option value="Porsche">Porsche</option>
+                    <option value="Renault">Renault</option>
+                    <option value="Subaru">Subaru</option>
+                    <option value="Suzuki">Suzuki</option>
+                    <option value="Tesla">Tesla</option>
+                    <option value="Toyota">Toyota</option>
+                    <option value="Volvo">Volvo</option>
+                    <option value="Wuling">Wuling</option>
+                </select>
             </div>
+
+            <div class="mr-0">
+                <label for="model" class="block mb-2 text-sm font-medium text-gray-600">Model:</label>
+                <select name="dropdown2" id="id_dropdown2" class="bg-white border border-[#0F044C] text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+
+                </select>
+            </div>
+
+             <div class="mt-2 mr-0">
+                <label for="colour" class="block mb-2 text-sm font-medium text-gray-600">Color:</label>
+                <select name="color" id="color" class="bg-white border border-[#0F044C] text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    <option value="" class="hidden"></option>
+                    <option value="White">White</option>
+                    <option value="Black">Black</option>
+                    <option value="Silver">Silver</option>
+                    <option value="Gray">Gray</option>
+                    <option value="Red">Red</option>
+                    <option value="Blue">Blue</option>
+                    <option value="Brown">Brown</option>
+                    <option value="Bronze">Bronze</option>
+                    <option value="Green">Green</option>
+                    <option value="Yellow">Yellow</option>
+                </select>
+            </div>
+
+             <div class="mt-2 mr-0">
+                <label for="colour" class="block mb-2 text-sm font-medium text-gray-600">Plate:</label>
+                <select name="plate1" id="plate1" class="bg-white border border-[#0F044C] text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                <option value="" disabled selected class="hidden">Kode</option>
+                   <optgroup label="Sumatra">
+                        <option value="BL">BL – Aceh</option>
+                        <option value="BK">BK – Sumatera Utara</option>
+                        <option value="BA">BA – Sumatera Barat</option>
+                        <option value="BM">BM – Riau</option>
+                        <option value="BP">BP – Kepulauan Riau</option>
+                        <option value="BH">BH – Jambi</option>
+                        <option value="BD">BD – Bengkulu</option>
+                        <option value="BG">BG – Sumatera Selatan</option>
+                        <option value="BN">BN – Bangka Belitung</option>
+                        <option value="BE">BE – Lampung</option>
+                    </optgroup>
+
+                    <optgroup label="Jawa & Banten">
+                        <option value="A">A – Banten</option>
+                        <option value="B">B – DKI Jakarta, Bekasi, Depok, Tangerang</option>
+                        <option value="D">D – Bandung</option>
+                        <option value="E">E – Cirebon, Indramayu</option>
+                        <option value="F">F – Bogor, Sukabumi</option>
+                        <option value="G">G – Pekalongan, Tegal</option>
+                        <option value="H">H – Semarang, Kendal</option>
+                        <option value="K">K – Kudus, Pati, Jepara</option>
+                        <option value="R">R – Banyumas, Cilacap</option>
+                        <option value="AA">AA – Magelang, Wonosobo</option>
+                        <option value="AD">AD – Surakarta, Klaten</option>
+                        <option value="AB">AB – Yogyakarta</option>
+                    </optgroup>
+
+                    <optgroup label="Jawa Timur & Madura">
+                        <option value="L">L – Surabaya</option>
+                        <option value="M">M – Madura</option>
+                        <option value="N">N – Malang</option>
+                        <option value="P">P – Jember, Banyuwangi</option>
+                        <option value="S">S – Jombang, Mojokerto</option>
+                        <option value="W">W – Sidoarjo, Gresik</option>
+                        <option value="AE">AE – Madiun, Ngawi</option>
+                        <option value="AG">AG – Kediri, Blitar</option>
+                    </optgroup>
+
+                    <optgroup label="Bali & Nusa Tenggara">
+                        <option value="DK">DK – Bali</option>
+                        <option value="DR">DR – Lombok (NTB)</option>
+                        <option value="EA">EA – Sumbawa (NTB)</option>
+                        <option value="EB">EB – Flores (NTT)</option>
+                        <option value="ED">ED – Sumba (NTT)</option>
+                        <option value="DH">DH – Timor (NTT)</option>
+                    </optgroup>
+
+                    <optgroup label="Kalimantan">
+                        <option value="DA">DA – Kalimantan Selatan</option>
+                        <option value="KB">KB – Kalimantan Barat</option>
+                        <option value="KH">KH – Kalimantan Tengah</option>
+                        <option value="KT">KT – Kalimantan Timur</option>
+                        <option value="KU">KU – Kalimantan Utara</option>
+                    </optgroup>
+
+                    <optgroup label="Sulawesi">
+                        <option value="DB">DB – Sulawesi Utara</option>
+                        <option value="DL">DL – Sitaro/Sangihe/Talaud</option>
+                        <option value="DC">DC – Sulawesi Barat</option>
+                        <option value="DD">DD – Sulawesi Selatan</option>
+                        <option value="DN">DN – Sulawesi Tengah</option>
+                        <option value="DT">DT – Sulawesi Tenggara</option>
+                        <option value="DM">DM – Gorontalo</option>
+                    </optgroup>
+
+                    <optgroup label="Maluku & Papua">
+                        <option value="DE">DE – Maluku</option>
+                        <option value="DG">DG – Maluku Utara</option>
+                        <option value="PA">PA – Papua</option>
+                        <option value="PB">PB – Papua Barat</option>
+                    </optgroup>
+
+                    <optgroup label="Kode Khusus">
+                        <option value="RI">RI – Pejabat Negara</option>
+                        <option value="TNI">TNI – Tentara Nasional Indonesia</option>
+                        <option value="POL">POL – Kepolisian</option>
+                        <option value="CD">CD – Diplomat</option>
+                        <option value="CC">CC – Konsulat</option>
+                    </optgroup>
+                 </select>
+                  <!-- Plate Angka -->
+                  <div class="mt-2 mr-0">
+                       <input type="text" name="plate2" maxlength="3" class="bg-white border border-[#0F044C] text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="123" required>
+                     </div>
+                     <!-- Plate Huruf -->
+                     <div class="mt-2 mr-0">
+                       <input type="text" name="plate3" class="bg-white border border-[#0F044C] text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="XYZ" required>
+                     </div>
+            </div>
+            </div>
+
+            <div class="w-full">
+                <label for="imageUpload" class="block mb-2 text-sm font-medium text-gray-600">Car Image:</label>
+                        <input required class="block w-full text-sm text-gray-900 border border-[#0F044C] rounded-md cursor-pointer bg-white focus:outline-none" aria-describedby="file_input_help" type="file" name="imageUpload" id="imageUpload" accept=".jpg, .jpeg, .png, image/jpeg, image/png">
+                        <p id="fileInfo" class="mt-2 text-sm text-red-600"></p>
+
+                        <div class="justify-center flex items-center">
+            <img id="carPreview" src="{{ reservation.car.image.url|default:'/static/images/default-car.png' }}" class="w-90 mx-auto mt-2" />
+        </div>
+                </div>
+            
             <div class="mt-12">
-                <button class="shadow-[0_5px_5px_rgba(0,0,0,0.2)] w-full block focus:outline-none text-white bg-[#141E61] hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-[50px] text-lg px-5 py-2.5 me-2 mb-2 text-center" type="submit">Continue</button>
+                <button class="shadow-[0_5px_5px_rgba(0,0,0,0.2)] w-full block focus:outline-none text-white bg-[#141E61] hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-[50px] text-lg px-5 py-2.5 me-2 mb-2 text-center" type="submit">Reservasi</button>
             </div>
 
         </form>
@@ -118,9 +290,7 @@
             <div class="flex justify-between">   
 
                 <div class="text-[#0F044C] font-medium rounded-lg text-sm text-center inline-flex items-center ">
-                <!--
-                <input readonly datepicker datepicker-format="mm/dd/yyyy" data-date-min="{{ today }}" data-date-max="{{ two_weeks }}" id="default-datepicker" name="datepicker" type="text" class=" bg-white text-sm rounded-lg placeholder-[#141E61] border border-2 border-[#141E61] hover:bg-[#141E61] hover:placeholder-white cursor-pointer focus:ring-blue-500 focus:border-blue-500 px-4 py-1.5  w-auto"  size="8" placeholder="Select date" >                                                                 
-                -->
+
                 <input id="default-datepicker" name="date" type="text" data-datepicker data-date-format="mm/dd/yyyy" min="{{ today }}" max="{{ two_weeks }}" class="bg-white text-sm rounded-lg border border-2 border-[#141E61] md:px-4 px-2 py-1.5 placeholder-[#141E61] hover:bg-[#141E61] hover:placeholder-white cursor-pointer focus:ring-blue-500 focus:border-blue-500 w-auto" size="8" placeholder="Select date" readonly />
                 </div>
 
@@ -512,7 +682,139 @@ document.addEventListener('DOMContentLoaded', () => {
 
             </div>
         </div>
-        
+         <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            const dropdown1 = document.getElementById('id_dropdown1');
+            const dropdown2 = document.getElementById('id_dropdown2');
+
+            const optionsMap = {
+                "0": [""],
+                "Audi": ["A4", "A6", "A8", "Q3", "Q5", "Q7", "e-tron"],
+                "BMW": ["320i", "330i", "520i", "X1", "X3", "X5", "i4", "iX"],
+                "BYD": ["Atto 3", "Dolphin", "Seal"],
+                "Chery": ["Omoda 5", "Tiggo 7 Pro", "Tiggo 8 Pro"],
+                "Chevrolet": ["Captiva", "Spin", "Trax"],
+                "Daihatsu": ["Ayla", "Gran Max", "Rocky", "Sigra", "Terios", "Xenia"],
+                "Ford": ["Everest", "Focus", "Ranger"],
+                "Honda": ["Accord", "BR-V", "Brio", "City", "City Hatchback", "Civic", "CR-V", "HR-V", "Mobilio"],
+                "Hyundai": ["Creta", "Ioniq 5", "Kona EV", "Palisade", "Santa Fe", "Stargazer"],
+                "Isuzu": ["D-Max", "MU-X", "Panther"],
+                "Jaguar": ["F-Pace", "I-Pace", "XE", "XF"],
+                "Kia": ["Carens", "EV6", "Seltos", "Sonet"],
+                "Land Rover": ["Defender", "Range Rover Evoque", "Range Rover Sport", "Range Rover Velar"],
+                "Lexus": ["ES", "NX", "RX", "RZ", "UX"],
+                "Mercedes-Benz": ["C200", "C300", "E200", "EQB", "EQS", "GLA", "GLC", "GLE"],
+                "MG": ["4 EV", "5 GT", "ZS", "ZS EV"],
+                "Mini": ["Cooper", "Countryman", "Electric"],
+                "Mitsubishi": ["Pajero Sport", "Triton", "Xpander", "Xpander Cross"],
+                "Nissan": ["Livina", "Magnite", "Serena", "X-Trail"],
+                "Peugeot": ["2008", "3008", "5008"],
+                "Porsche": ["911", "Cayenne", "Macan", "Taycan"],
+                "Renault": ["Kwid", "Triber", "Zoe"],
+                "Subaru": ["Forester", "WRX", "XV"],
+                "Suzuki": ["Baleno", "Carry", "Ertiga", "Ignis", "Jimny", "XL7"],
+                "Tesla": ["Model 3", "Model Y"],
+                "Toyota": ["Agya", "Avanza", "Camry", "Fortuner", "Hilux", "Innova", "Land Cruiser", "Raize", "Rush", "Veloz", "Yaris"],
+                "Volvo": ["EX30", "EX90", "XC40", "XC60", "XC90"],
+                "Wuling": ["Air EV", "Almaz", "Almaz RS", "Confero", "Cortez"]
+            };
+
+            function updateDropdown2(value) {
+                dropdown2.innerHTML = "";
+                optionsMap[value].forEach(function (item) {
+                const option = document.createElement("option");
+                option.value = item;
+                option.text = item.toUpperCase();
+                dropdown2.appendChild(option);
+                });
+            }
+
+            // Default isi saat load
+            if (dropdown1.value) {
+                updateDropdown2(dropdown1.value);
+            }
+
+            dropdown1.addEventListener("change", function () {
+                updateDropdown2(this.value);
+            });
+            });
+        </script>
+
+         <script>
+                        const plateSelect = document.getElementById('plate1');
+
+                        plateSelect.addEventListener('change', function () {
+                            const selectedValue = plateSelect.value;
+                            
+                            // Simpan semua teks option (jangan ubah)
+                            for (let i = 0; i < plateSelect.options.length; i++) {
+                                const option = plateSelect.options[i];
+                                const code = option.value;
+                                const label = option.getAttribute('data-label');
+                                if (label) {
+                                    option.textContent = label; // restore label jika sebelumnya berubah
+                                }
+                            }
+
+                            // Ubah tampilan selected option dengan hanya kode, tapi tidak ubah yang di dropdown
+                            const selectedOption = plateSelect.options[plateSelect.selectedIndex];
+                            selectedOption.textContent = selectedValue;
+                        });
+
+                        // Tambahkan attribute data-label ke setiap option
+                        window.addEventListener('DOMContentLoaded', () => {
+                            for (let option of plateSelect.options) {
+                                option.setAttribute('data-label', option.textContent);
+                            }
+                        });
+                    </script>
+
+                    <script>
+const input = document.getElementById('imageUpload');
+const preview = document.getElementById('carPreview');
+
+input.addEventListener('change', function () {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const dateInput = document.getElementById("default-datepicker");
+    const carForm = document.getElementById("car_form");
+
+    function showCarForm() {
+        carForm.classList.remove("max-h-0", "opacity-0");
+        carForm.classList.add("max-h-[2000px]", "opacity-100");
+    }
+
+    function hideCarForm() {
+        carForm.classList.remove("max-h-[2000px]", "opacity-100");
+        carForm.classList.add("max-h-0", "opacity-0");
+    }
+
+    // awalnya hidden
+    hideCarForm();
+
+    // saat user pilih tanggal
+    dateInput.addEventListener("changeDate", function () {
+        if (dateInput.value.trim() !== "") {
+            showCarForm();
+        } else {
+            hideCarForm();
+        }
+    });
+});
+</script>
+
+
 
     </div>
 
