@@ -259,7 +259,7 @@
                         <p id="fileInfo" class="mt-2 text-sm text-red-600"></p>
 
                         <div class="justify-center flex items-center">
-            <img id="carPreview" src="{{ reservation.car.image.url|default:'/static/images/default-car.png' }}" class="w-90 mx-auto mt-2" />
+            <img src="" alt="Image preview" id="preview_image" class="mt-4 hidden w-auto h-48 border border-gray-300 rounded">
         </div>
                 </div>
             
@@ -836,7 +836,6 @@ function closeModal() {
 }
 </script>
 {% endif %}
-
 
 
 {% endblock %}
