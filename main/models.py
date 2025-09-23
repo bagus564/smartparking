@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
 # -----------------------------
 # Custom User
@@ -90,7 +91,7 @@ class Reservation(models.Model):
         if self.start_time >= self.end_time:
             raise ValidationError("End time must be after start time.")
         
-        # Validasi tumpang tindih
+        # Validasi tumpang tindih di spot yang sama
         overlapping = Reservation.objects.filter(
             spot=self.spot,
             start_time__lt=self.end_time,
@@ -99,7 +100,17 @@ class Reservation(models.Model):
         if overlapping.exists():
             raise ValidationError("This spot is already reserved for the selected time.")
 
+        # Validasi user tidak boleh double booking di tanggal sama
+        overlapping_user = Reservation.objects.filter(
+            user=self.user,
+            start_time__date=self.start_time.date(),
+            end_time__gt=timezone.now()
+        ).exclude(pk=self.pk)
+
+        if overlapping_user.exists():
+            raise ValidationError("You already have an active reservation on this date.")
+
     def save(self, *args, **kwargs):
-        # Jalankan validasi sebelum save
         self.clean()
         super().save(*args, **kwargs)
+

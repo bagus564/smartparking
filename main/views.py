@@ -109,14 +109,50 @@ def reservation_view(request):
         try:
             date_obj = datetime.strptime(date_str, "%m/%d/%Y")
             formatted_date = date_obj.strftime("%Y-%m-%d")
-            start_datetime = datetime.strptime(f"{formatted_date} {start_hour}:00", "%Y-%m-%d %H:%M:%S")
-            end_datetime = datetime.strptime(f"{formatted_date} {end_hour}:00", "%Y-%m-%d %H:%M:%S")
+            start_datetime = datetime.strptime(
+                f"{formatted_date} {start_hour}:00", "%Y-%m-%d %H:%M:%S"
+            )
+            end_datetime = datetime.strptime(
+                f"{formatted_date} {end_hour}:00", "%Y-%m-%d %H:%M:%S"
+            )
         except ValueError:
             messages.error(request, "Invalid date or time format.")
             return redirect('reservation')
 
-        # Simpan reservasi
-        reservation = Reservation.objects.create(user=request.user, spot=spot, start_time=start_datetime, end_time=end_datetime)
+        # 🚨 Validasi jam (end_time harus > start_time)
+        if end_datetime <= start_datetime:
+            messages.error(request, "End time must be later than start time.")
+            return redirect('reservation')
+
+        # 🚨 Cek apakah user sudah punya reservasi aktif di tanggal tsb
+        existing_reservation = Reservation.objects.filter(
+            user=request.user,
+            start_time__date=date_obj.date(),
+            end_time__gte=timezone.now()  # masih aktif
+        ).exists()
+
+        if existing_reservation:
+            messages.error(request, "You already have an active reservation for this date.")
+            return redirect('reservation')
+
+        # 🚨 Cek tabrakan jadwal di slot yang sama
+        overlap = Reservation.objects.filter(
+            spot=spot,
+            start_time__lt=end_datetime,
+            end_time__gt=start_datetime
+        ).exists()
+
+        if overlap:
+            messages.error(request, "This slot is already reserved for the selected time.")
+            return redirect('reservation')
+
+        # Simpan reservasi baru
+        reservation = Reservation.objects.create(
+            user=request.user,
+            spot=spot,
+            start_time=start_datetime,
+            end_time=end_datetime
+        )
 
         # Opsional: langsung tambah mobil
         brand = request.POST.get('dropdown1')
@@ -129,7 +165,17 @@ def reservation_view(request):
 
         if all([brand, model, color, plate1, plate2, plate3]):
             license_plate = f"{plate1} {plate2} {plate3.strip().upper()}"
-            car = Car.objects.create(user=request.user, brand=brand, model=model, color=color, license_plate=license_plate, image=uploaded_image)
+            # 🚨 Cegah duplikasi mobil
+            car, created = Car.objects.get_or_create(
+                user=request.user,
+                license_plate=license_plate,
+                defaults={
+                    "brand": brand,
+                    "model": model,
+                    "color": color,
+                    "image": uploaded_image
+                }
+            )
             reservation.car = car
             reservation.save()
 
@@ -147,41 +193,6 @@ def status_view(request):
     spots = Spot.objects.all()
     return render(request, 'status.html', {"spots": spots})
 
-@login_required(login_url='login')
-def reservation_details_view(request, reservation_id):
-    try:
-        reservation = Reservation.objects.get(id=reservation_id)
-    except Reservation.DoesNotExist:
-        return render(request, 'reservation_details.html', {'error': 'Reservation not found'})
-    
-    if request.method == 'POST':
-        brand = request.POST.get('dropdown1')
-        model = request.POST.get('dropdown2')
-        color = request.POST.get('color')
-        plate1 = request.POST.get('plate1')
-        plate2 = request.POST.get('plate2')
-        plate3 = request.POST.get('plate3')
-        uploaded_image = request.FILES.get('imageUpload')
-        
-        license_plate = f"{plate1} {plate2} {plate3.strip().upper()}"
-
-        print("reservation details data: ", request.POST, request.FILES)
-        
-        car = Car.objects.create(
-            user=request.user,
-            brand=brand,
-            model=model,
-            color=color,
-            license_plate=license_plate,
-            image=uploaded_image,
-        )
-        
-        reservation.car = car
-        reservation.save()
-        
-        return redirect('account')
-
-    return render(request, 'reservation_details.html', {'reservation': reservation})
 
 @login_required(login_url='login')
 def account_view(request):

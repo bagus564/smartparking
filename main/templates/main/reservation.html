@@ -815,6 +815,29 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
 
 </div>
+{% if messages %}
+<div id="errorModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6 text-center">
+    {% for message in messages %}
+      <h2 class="text-lg font-semibold text-red-600 mb-4">Error</h2>
+      <p class="text-gray-700">{{ message }}</p>
+    {% endfor %}
+    <div class="mt-6">
+      <button onclick="closeModal()" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+        OK
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function closeModal() {
+  document.getElementById("errorModal").style.display = "none";
+}
+</script>
+{% endif %}
+
 
 
 {% endblock %}
+
