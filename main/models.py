@@ -18,6 +18,7 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
+
 # -----------------------------
 # Car
 # -----------------------------
@@ -32,20 +33,21 @@ class Car(models.Model):
     def __str__(self):
         return f"{self.brand} {self.model} ({self.license_plate})"
 
+
 # -----------------------------
-# Spot
+# Spot (gabungan ParkingSlot)
 # -----------------------------
 class Spot(models.Model):
     spot_number = models.CharField(max_length=20, unique=True)
     
     STATUS_CHOICES = [
-        ('available', 'Available'),
-        ('occupied', 'Occupied'),
-        ('reserved', 'Reserved'),
-        ('disabled',  'Disabled'), 
+        ('available', 'Tersedia'),
+        ('reserved', 'Reservasi'),
+        ('occupied', 'Tidak Tersedia'),
+        ('maintenance', 'Perbaikan'), 
     ]
     
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='available')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
     is_disabled = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True)
     buzzer_active = models.BooleanField(default=False)
@@ -56,7 +58,7 @@ class Spot(models.Model):
         Hanya save jika status berubah.
         """
         if self.is_disabled:
-            new_status = 'disabled'
+            new_status = 'maintenance'
         else:
             new_status = 'occupied' if distance_cm < 100 else 'available'
         
@@ -65,8 +67,19 @@ class Spot(models.Model):
             self.buzzer_active = (new_status == 'occupied')
             self.save(update_fields=['status', 'buzzer_active', 'last_updated'])
 
+    def get_color(self):
+        """Kembalikan warna sesuai status (buat realtime UI)"""
+        colors = {
+            'available': 'bg-blue-500',      # Tersedia
+            'reserved': 'bg-green-500',      # Reservasi
+            'occupied': 'bg-red-500',        # Tidak Tersedia
+            'maintenance': 'bg-yellow-400',  # Perbaikan
+        }
+        return colors.get(self.status, 'bg-gray-300')
+
     def __str__(self):
-        return f"Spot {self.spot_number}"
+        return f"Spot {self.spot_number} - {self.status}"
+
 
 # -----------------------------
 # Reservation
