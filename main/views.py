@@ -2,18 +2,19 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .models import CustomUser, Spot, Reservation, Car
 from django.contrib import messages
-import logging
 from datetime import datetime, date, timedelta
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.utils.dateparse import parse_date
-from django.utils import timezone
-from django.utils.timezone import localdate, make_aware, localtime
+from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-import paho.mqtt.publish as publish
 from functools import wraps
+from django.utils import timezone  # <-- tambahkan ini
+import logging  # jika belum ada, karena logger dipakai
+import paho.mqtt.publish as publish
 import json
+import csv
 
 logger = logging.getLogger(__name__)
 
@@ -560,3 +561,71 @@ def admin_turn_off_buzzer(request):
             return JsonResponse({"success": False, "error": "Slot tidak ditemukan"})
 
     return JsonResponse({"success": False, "error": "Metode bukan POST"})
+
+
+@staff_member_required
+def export_reservations(request):
+    """
+    Export reservations as CSV. Optional GET param: ?date=YYYY-MM-DD
+    """
+    date_str = request.GET.get('date')
+    qs = Reservation.objects.select_related('user', 'car', 'spot').order_by('start_time')
+    if date_str:
+        d = parse_date(date_str)
+        if d:
+            qs = qs.filter(start_time__date=d)
+
+    filename = f"reservations_{date_str or 'all'}.csv"
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    writer = csv.writer(response)
+    writer.writerow([
+        "Username", "Date", "Start Time", "End Time", "Spot",
+        "Phone", "Car Brand", "Car Model", "Car Color", "License Plate"
+    ])
+
+    for r in qs:
+        writer.writerow([
+            r.user.username,
+            r.start_time.date().isoformat(),
+            r.start_time.time().strftime("%H:%M"),
+            r.end_time.time().strftime("%H:%M"),
+            (r.spot.spot_number if r.spot else ""),
+            (r.user.phone_number or ""),
+            (r.car.brand if r.car else ""),
+            (r.car.model if r.car else ""),
+            (r.car.color if r.car else ""),
+            (r.car.license_plate if r.car else ""),
+        ])
+    return response
+
+
+@staff_member_required
+@require_POST
+def toggle_all_spots_disable(request):
+    """
+    Toggle global disable: if any spot enabled -> disable all (is_disabled=True, status=maintenance).
+    If all disabled -> enable all (is_disabled=False, set status available for maintenance).
+    """
+    # if any spot is enabled -> disable all
+    any_enabled = Spot.objects.filter(is_disabled=False).exists()
+    if any_enabled:
+        # disable all -> set is_disabled True and status maintenance
+        updated = Spot.objects.update(is_disabled=True, status='maintenance')
+        new_state = 'disabled'
+    else:
+        # enable all -> clear is_disabled, and set status available if currently maintenance
+        updated1 = Spot.objects.filter(is_disabled=True).update(is_disabled=False)
+        updated2 = Spot.objects.filter(status='maintenance', is_disabled=False).update(status='available')
+        updated = updated1 + updated2
+        new_state = 'enabled'
+    return JsonResponse({'success': True, 'state': new_state, 'updated': updated})
+
+
+@staff_member_required
+def spots_state(request):
+    """
+    Return whether all spots are currently disabled (for UI to set button label).
+    """
+    any_enabled = Spot.objects.filter(is_disabled=False).exists()
+    return JsonResponse({'all_disabled': not any_enabled})

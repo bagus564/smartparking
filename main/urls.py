@@ -2,6 +2,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import *
+from .views import export_reservations, toggle_all_spots_disable, spots_state
 
 urlpatterns = [
     # --- AUTH ---
@@ -35,8 +36,13 @@ urlpatterns = [
     path("adminhome/", adminhome_view, name="adminhome"),
     path("adminreservation/", adminreservation_view, name="adminreservation"),
     path("adminmonitoring/", adminmonitoring_view, name="adminmonitoring"),
+
+    # --- ADMIN ACTIONS (baru ditambahkan) ---
+    path("adminreservation/export/", export_reservations, name="export_reservations"),
+    path("adminreservation/toggle-all-spots/", toggle_all_spots_disable, name="toggle_all_spots_disable"),
+    path("adminreservation/spots-state/", spots_state, name="spots_state"),
 ]
 
-# Untuk serve media saat development
+# Serve media during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
