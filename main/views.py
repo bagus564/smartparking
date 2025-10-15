@@ -563,13 +563,15 @@ def admin_turn_off_buzzer(request):
     return JsonResponse({"success": False, "error": "Metode bukan POST"})
 
 
-@staff_member_required
+# ========== EXPORT RESERVATIONS (ADMIN) ==========
+@admin_login_required
 def export_reservations(request):
     """
     Export reservations as CSV. Optional GET param: ?date=YYYY-MM-DD
     """
     date_str = request.GET.get('date')
     qs = Reservation.objects.select_related('user', 'car', 'spot').order_by('start_time')
+
     if date_str:
         d = parse_date(date_str)
         if d:
@@ -578,6 +580,7 @@ def export_reservations(request):
     filename = f"reservations_{date_str or 'all'}.csv"
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
     writer = csv.writer(response)
     writer.writerow([
         "Username", "Date", "Start Time", "End Time", "Spot",
@@ -599,33 +602,127 @@ def export_reservations(request):
         ])
     return response
 
+# ========== TOGGLE SINGLE SPOT (PERBAIKAN) ==========
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.conf import settings
+import json, logging, paho.mqtt.publish as publish
 
-@staff_member_required
+logger = logging.getLogger(__name__)
+
 @require_POST
+@admin_login_required
+@csrf_exempt
+def toggle_spot_disable(request):
+    """
+    Toggle satu atau beberapa slot (dari tombol individual di UI admin).
+    Body JSON contoh:
+    {
+        "spot_numbers": [1, 2],
+        "disable": true
+    }
+    """
+    try:
+        data = json.loads(request.body.decode())
+        spot_nums = data.get("spot_numbers", [])
+        disable = bool(data.get("disable", False))
+
+        if not spot_nums:
+            return JsonResponse({"error": "No spot numbers provided"}, status=400)
+
+        for spot_number in spot_nums:
+            try:
+                spot = Spot.objects.get(spot_number=spot_number)
+                spot.is_disabled = disable
+                spot.status = 'disabled' if disable else 'available'
+                spot.save()
+
+                # kirim MQTT (aman dengan timeout)
+                topic = f"parkir/slot{spot_number}/buzzer"
+                payload = "disabled" if disable else "enable"
+
+                try:
+                    publish.single(
+                        topic,
+                        payload,
+                        hostname="192.168.12.151",
+                        port=1883,
+                        timeout=2  # timeout cepat agar tidak lama
+                    )
+                    logger.info(f"[MQTT] Slot {spot_number} -> {payload.upper()} dikirim.")
+                except Exception as mqtt_error:
+                    logger.warning(f"[MQTT] Gagal kirim ke slot {spot_number}: {mqtt_error}")
+
+            except Spot.DoesNotExist:
+                logger.warning(f"Spot {spot_number} tidak ditemukan.")
+
+        return JsonResponse({
+            "success": True,
+            "state": "disabled" if disable else "enabled"
+        })
+
+    except Exception as e:
+        logger.error(f"Toggle slot error: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
+
+# ========== TOGGLE ALL SPOTS (Fixed Version) ==========
+from paho.mqtt import publish
+
+@csrf_exempt
+@require_POST
+@admin_login_required
 def toggle_all_spots_disable(request):
     """
-    Toggle global disable: if any spot enabled -> disable all (is_disabled=True, status=maintenance).
-    If all disabled -> enable all (is_disabled=False, set status available for maintenance).
+    Toggle global disable:
+    Jika ada spot aktif -> disable semua (is_disabled=True, status=maintenance).
+    Jika semua spot disabled -> enable semua (is_disabled=False, status=available).
     """
-    # if any spot is enabled -> disable all
-    any_enabled = Spot.objects.filter(is_disabled=False).exists()
-    if any_enabled:
-        # disable all -> set is_disabled True and status maintenance
-        updated = Spot.objects.update(is_disabled=True, status='maintenance')
-        new_state = 'disabled'
-    else:
-        # enable all -> clear is_disabled, and set status available if currently maintenance
-        updated1 = Spot.objects.filter(is_disabled=True).update(is_disabled=False)
-        updated2 = Spot.objects.filter(status='maintenance', is_disabled=False).update(status='available')
-        updated = updated1 + updated2
-        new_state = 'enabled'
-    return JsonResponse({'success': True, 'state': new_state, 'updated': updated})
+    try:
+        any_enabled = Spot.objects.filter(is_disabled=False).exists()
+
+        if any_enabled:
+            # 🔴 Disable semua spot
+            Spot.objects.update(is_disabled=True, status='maintenance')
+            new_state = 'disabled'
+            mqtt_payload = "disabled"
+            print("[ACTION] Semua slot akan dinonaktifkan.")
+
+        else:
+            # 🟢 Enable semua spot
+            Spot.objects.filter(is_disabled=True).update(is_disabled=False)
+            Spot.objects.filter(status='maintenance', is_disabled=False).update(status='available')
+            new_state = 'enabled'
+            mqtt_payload = "enable"
+            print("[ACTION] Semua slot akan diaktifkan kembali.")
+
+        # Coba kirim MQTT ke semua slot, tapi jangan sampai timeout bikin error
+        for spot in Spot.objects.all():
+            topic = f"parkir/slot{spot.spot_number}/buzzer"
+            try:
+                publish.single(
+                    topic,
+                    mqtt_payload,
+                    hostname="192.168.12.151",
+                    port=1883,
+                    keepalive=3,          # waktu koneksi singkat
+                    timeout=3             # biar ga timeout lama
+                )
+                print(f"[MQTT ✅] Slot {spot.spot_number} -> {mqtt_payload.upper()}")
+            except Exception as mqtt_err:
+                print(f"[MQTT ⚠️] Slot {spot.spot_number} gagal: {mqtt_err}")
+
+        return JsonResponse({'success': True, 'state': new_state})
+
+    except Exception as e:
+        logger.error(f"[ERROR] Toggle semua spot gagal: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@staff_member_required
+@admin_login_required
 def spots_state(request):
     """
-    Return whether all spots are currently disabled (for UI to set button label).
+    Return apakah semua spot saat ini disabled (untuk menyesuaikan label tombol di UI admin).
     """
     any_enabled = Spot.objects.filter(is_disabled=False).exists()
     return JsonResponse({'all_disabled': not any_enabled})
