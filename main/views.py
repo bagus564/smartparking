@@ -202,11 +202,9 @@ def status_view(request):
 
 
 def realtime_parking_view(request):
-    spots = Spot.objects.all().order_by("spot_number")
-    left_row = spots[:10]
-    right_row = spots[10:20]
-    return render(request, "realtime.html", {"left_row": left_row, "right_row": right_row})
-
+    # Order by spot_number penting agar slot berurutan
+    spots = Spot.objects.all().order_by("spot_number") 
+    return render(request, "realtime.html", {"spots": spots})
 
 # ========== RESERVATION DETAILS ==========
 @login_required(login_url='login')

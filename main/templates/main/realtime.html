@@ -4,98 +4,73 @@
 {% block title %}Real-time Parking{% endblock %}
 
 {% block content %}
-<!-- Judul -->
 <div class="text-center mt-8 mb-10">
-  <h5 class="text-3xl font-bold text-[#141E61]">REAL TIME SMART PARKING</h5>
+    <h5 class="text-3xl font-bold text-[#141E61]">REAL TIME SMART PARKING</h5>
 </div>
 
-<!-- Area Parkir -->
 <div class="my-4 border-4 border-[#141E61] rounded-lg shadow-[0_5px_5px_rgba(0,0,0,0.2)]">
-  <div class="md:p-4 p-2 text-center flex justify-center md:text-2xl text-md bg-[#141E61] font-medium text-white">
-    Where would you like to park?
-  </div>
-
-  <!-- 2 baris × 10 kolom -->
-  <div class="overflow-x-auto py-6">
-    <!-- Baris 1 -->
-    <div class="grid grid-cols-10 gap-4 mb-8">
-      {% for slot in left_row %}
-        <div class="flex flex-col items-center">
-          <div class="w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-md
-            {% if slot.status == 'occupied' %} bg-red-500
-            {% elif slot.status == 'reserved' %} bg-yellow-500
-            {% elif slot.status == 'available' %} bg-green-500
-            {% else %} bg-gray-400 {% endif %}">
-            
-            <!-- Mobil selalu tampil -->
-            <img src="{% static 'main/car1.png' %}" alt="Car" class="w-10">
-          </div>
-          <div class="text-center mt-2">
-            <div class="font-semibold text-xs text-[#141E61]">Slot {{ slot.spot_number }}</div>
-            <div class="text-xs font-semibold
-              {% if slot.status == 'occupied' %} text-red-500 
-              {% elif slot.status == 'reserved' %} text-yellow-500
-              {% elif slot.status == 'available' %} text-green-500
-              {% else %} text-gray-500 {% endif %}">
-              {% if slot.status == 'occupied' %}
-                Terisi
-              {% elif slot.status == 'reserved' %}
-                Direservasi
-              {% elif slot.status == 'available' %}
-                Kosong
-              {% else %}
-                Perbaikan/Acara
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      {% endfor %}
+    <div class="md:p-4 p-2 text-center flex justify-center md:text-2xl text-md bg-[#141E61] font-medium text-white">
+        Where would you like to park?
     </div>
 
-    <!-- Baris 2 -->
-    <div class="grid grid-cols-10 gap-4">
-      {% for slot in right_row %}
-        <div class="flex flex-col items-center">
-          <div class="w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-md
-            {% if slot.status == 'occupied' %} bg-red-500
-            {% elif slot.status == 'reserved' %} bg-yellow-500
-            {% elif slot.status == 'available' %} bg-green-500
-            {% else %} bg-gray-400 {% endif %}">
-            
-            <!-- Mobil selalu tampil -->
-            <img src="{% static 'main/car2.png' %}" alt="Car" class="w-10">
-          </div>
-          <div class="text-center mt-2">
-            <div class="font-semibold text-xs text-[#141E61]">Slot {{ slot.spot_number }}</div>
-            <div class="text-xs font-semibold
-              {% if slot.status == 'occupied' %} text-red-500 
-              {% elif slot.status == 'reserved' %} text-yellow-500
-              {% elif slot.status == 'available' %} text-green-500
-              {% else %} text-gray-500 {% endif %}">
-              {% if slot.status == 'occupied' %}
-                Terisi
-              {% elif slot.status == 'reserved' %}
-                Direservasi
-              {% elif slot.status == 'available' %}
-                Kosong
-              {% else %}
-                Perbaikan/Acara
-              {% endif %}
-            </div>
-          </div>
+    <div class="py-6 flex justify-center">
+        <div class="grid gap-6 justify-items-center w-full px-6 grid-cols-5">
+
+            {% for slot in spots|slice:":10" %}
+                <div class="flex flex-col items-center">
+                    <div class="w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-md
+                        {% if slot.status == 'occupied' %} bg-red-500
+                        {% elif slot.status == 'available' %} bg-green-500
+                        {% else %} bg-gray-400 {% endif %}">
+                        <img src="{% static 'main/car1.png' %}" alt="Car" class="w-10">
+                    </div>
+
+                    <div class="text-center mt-2">
+                        <div class="font-semibold text-xs text-[#141E61]">Slot {{ slot.spot_number }}</div>
+                        <div class="text-xs font-semibold
+                            {% if slot.status == 'occupied' %} text-red-500 
+                            {% elif slot.status == 'available' %} text-green-500
+                            {% else %} text-gray-500 {% endif %}">
+                            {% if slot.status == 'occupied' %}
+                                Terisi
+                            {% elif slot.status == 'available' %}
+                                Kosong
+                            {% else %}
+                                Perbaikan/Acara
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-      {% endfor %}
     </div>
-  </div>
 </div>
 
-<!-- Legend -->
 <div class="mt-6 flex justify-left">
-  <ul class="text-sm bg-white p-10 rounded-md shadow-md space-y-2">
-    <li><span class="inline-block w-5 h-5 bg-red-500 mr-2"></span> Merah: Terisi</li>
-    <li><span class="inline-block w-5 h-5 bg-yellow-400 mr-2"></span> Kuning: Direservasi</li>
-    <li><span class="inline-block w-5 h-5 bg-green-500 mr-2"></span> Hijau: Kosong</li>
-    <li><span class="inline-block w-5 h-5 bg-gray-400 mr-2"></span> Abu-abu: Perbaikan/Acara</li>
-  </ul>
+    <ul class="text-sm bg-white p-10 rounded-md shadow-md space-y-2">
+        <li><span class="inline-block w-5 h-5 bg-red-500 mr-2"></span> Merah: Terisi</li>
+        <li><span class="inline-block w-5 h-5 bg-green-500 mr-2"></span> Hijau: Kosong</li>
+        <li><span class="inline-block w-5 h-5 bg-gray-400 mr-2"></span> Abu-abu: Perbaikan/Acara</li>
+    </ul>
 </div>
+
+<div class="mt-10 w-[90%] max-w-3xl mx-auto">
+    <h3 class="text-lg font-bold mb-4 text-[#141E61]">INFORMASI ACARA & PEMELIHARAAN</h3>
+    <div class="bg-white p-4 rounded-md shadow-md mb-4 border-l-4 border-[#141E61]">
+        <h4 class="font-semibold text-[#141E61]">PBL EXPO 2025</h4>
+        <p class="text-sm text-gray-600">Tanggal: 29–30 September 2025</p>
+        <p class="text-sm text-gray-600">Slot parkir: 17–18 (Direservasi)</p>
+    </div>
+    <div class="bg-white p-4 rounded-md shadow-md mb-4 border-l-4 border-[#141E61]">
+        <h4 class="font-semibold text-[#141E61]">POLIBATAM FAIR</h4>
+        <p class="text-sm text-gray-600">Tanggal: 26–28 September 2025</p>
+        <p class="text-sm text-gray-600">Slot parkir: 19–20 (Terisi)</p>
+    </div>
+    <div class="bg-white p-4 rounded-md shadow-md border-l-4 border-[#141E61]">
+        <h4 class="font-semibold text-[#141E61]">Perawatan Area Timur</h4>
+        <p class="text-sm text-gray-600">Tanggal: 14–15 Oktober 2025</p>
+        <p class="text-sm text-gray-600">Slot parkir: 10 (Perbaikan)</p>
+    </div>
+</div>
+
 {% endblock %}
