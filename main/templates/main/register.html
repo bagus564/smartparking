@@ -2,13 +2,13 @@
 
 {% load static %}
 
-{% block title %}Home Page{% endblock %}
+{% block title %}Sign Up{% endblock %}
 
 {% block start %}
 <title>Sign Up</title> 
 
 
-   <section class="relative h-screen overflow-hidden">
+    <section class="relative h-screen overflow-hidden">
 
   <img src="{% static 'main/bg.jpg' %}" class="min-h-screen w-full object-cover" alt="">
 
@@ -31,46 +31,54 @@
         <div>
           <label for="username" class="block mb-1 text-sm font-medium text-gray-700">Username</label>
           <div class="relative">
-            <input type="text" name="username" id="username" placeholder="Your username" maxlength="15" class="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none w-full transition-all duration-200" required>
+            <input type="text" name="username" id="username" placeholder="Your username" maxlength="15" 
+            value="{{ input.username|default:'' }}"
+            class="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none w-full transition-all duration-200 {% if errors.username %}border-red-500{% endif %}" required>
             <svg class="absolute left-3 top-3 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A4 4 0 017 16h10a4 4 0 011.879.464M15 11a4 4 0 10-6 0 4 4 0 006 0z" /></svg>
           </div>
           {% if errors.username %}
-            <p class="text-red-600 text-sm mt-1">{{ errors.username }}</p>
+            <p class="hidden register-error-item" data-error-key="username">{{ errors.username }}</p>
           {% endif %}
         </div>
 
         <div>
           <label for="email" class="block mb-1 text-sm font-medium text-gray-700">Email</label>
           <div class="relative">
-            <input type="email" name="email" id="email" placeholder="you@example.com" class="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none w-full transition-all duration-200" required>
+            <input type="email" name="email" id="email" placeholder="you@example.com" 
+            value="{{ input.email|default:'' }}"
+            class="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none w-full transition-all duration-200 {% if errors.email %}border-red-500{% endif %}" required>
             <svg class="absolute left-3 top-3 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H8m8 0a4 4 0 10-8 0 4 4 0 008 0z" /></svg>
           </div>
           {% if errors.email %}
-            <p class="text-red-600 text-sm mt-1">{{ errors.email }}</p>
+            <p class="hidden register-error-item" data-error-key="email">{{ errors.email }}</p>
           {% endif %}
         </div>
 
         <div>
           <label for="password" class="block mb-1 text-sm font-medium text-gray-700">Password</label>
           <div class="relative">
-            <input type="password" name="password" id="password" placeholder="••••••••" minlength="8" class="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none w-full transition-all duration-200" required>
+            <input type="password" name="password" id="password" placeholder="••••••••" minlength="8" 
+            class="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none w-full transition-all duration-200 {% if errors.password %}border-red-500{% endif %}" required>
             <svg class="absolute left-3 top-3 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.38 0 2.5 1.12 2.5 2.5S13.38 16 12 16s-2.5-1.12-2.5-2.5S10.62 11 12 11zM6 12c0-3.314 2.686-6 6-6s6 2.686 6 6" /></svg>
           </div>
           {% if errors.password %}
-            <p class="text-red-600 text-sm mt-1">{{ errors.password }}</p>
+            <p class="hidden register-error-item" data-error-key="password">{{ errors.password }}</p>
           {% endif %}
         </div>
 
         <div>
           <label for="confirm_password" class="block mb-1 text-sm font-medium text-gray-700">Confirm Password</label>
-          <input type="password" name="confirm_password" id="confirm_password" placeholder="••••••••" class="py-2.5 px-4 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 w-full transition-all duration-200" required>
+          <input type="password" name="confirm_password" id="confirm_password" placeholder="••••••••" 
+          class="py-2.5 px-4 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 w-full transition-all duration-200" required>
         </div>
 
         <div>
           <label for="phone_number" class="block mb-1 text-sm font-medium text-gray-700">Phone Number</label>
           <div class="flex gap-2">
             <input type="text" readonly value="+62" class="w-1/5 py-2.5 px-2 bg-gray-100 text-center text-gray-600 border border-gray-300 rounded-lg">
-            <input type="text" maxlength="12" pattern="[0-9]*" inputmode="numeric" name="phone_number" id="phone_number" placeholder="8123456789" class="w-4/5 py-2.5 px-4 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-200" required>
+            <input type="text" maxlength="12" pattern="[0-9]*" inputmode="numeric" name="phone_number" id="phone_number" placeholder="8123456789" 
+            value="{{ input.phone_number|default:'' }}"
+            class="w-4/5 py-2.5 px-4 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-200" required>
           </div>
         </div>
 
@@ -88,4 +96,41 @@
 </div>
 
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Kumpulkan semua pesan kesalahan yang disembunyikan
+    const errorElements = document.querySelectorAll('.register-error-item');
+    
+    if (errorElements.length > 0) {
+        let errorHtml = '<ul>';
+        
+        // Buat daftar error HTML
+        errorElements.forEach(el => {
+            const errorText = el.textContent.trim();
+            // const errorKey = el.getAttribute('data-error-key'); // Opsional: dapat digunakan untuk label
+            errorHtml += `<li>${errorText}</li>`;
+        });
+        
+        errorHtml += '</ul>';
+
+        // Tampilkan semua error dalam satu popup SweetAlert
+        Swal.fire({
+            title: 'Registrasi Gagal!',
+            html: errorHtml,
+            icon: 'error',
+            confirmButtonText: 'Perbaiki'
+        });
+    }
+
+    // Tambahkan event listener untuk mengisi kembali input jika ada data 'input' di context
+    {% if input %}
+        // Ini memastikan input password kosong (demi keamanan) tapi input lain terisi
+        document.getElementById('username').value = '{{ input.username|escapejs }}';
+        document.getElementById('email').value = '{{ input.email|escapejs }}';
+        document.getElementById('phone_number').value = '{{ input.phone_number|escapejs }}';
+    {% endif %}
+});
+</script>
+
 {% endblock %}

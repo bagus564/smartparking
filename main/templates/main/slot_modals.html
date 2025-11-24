@@ -1,0 +1,42 @@
+{% load static %}
+<div class="grid grid-cols-4">
+    {% for i in "1234" %}
+    <div>
+        <div class="flex justify-center my-2">
+            <p class="md:text-md text-xs text-[#141E61] font-semibold">Slot {{i}}</p>
+        </div>
+        <div id="slot-{{ i }}-box" class="md:py-8 justify-center items-center flex bg-[#018214] md:h-auto h-[130px] rounded-2xl md:mx-3 mx-1.5">
+            <button id="slot-{{ i }}-btn" onclick="setSlotDirectly('{{ i }}')">
+                <img src="{% static 'main/car'|add:i|add:'.png' %}" alt="" class="block md:w-28 w-[55px] transition duration-300 ease-in-out transform hover:scale-110 hover:brightness-75">
+            </button>
+        </div>
+        <div class="items-center flex justify-center py-2">
+            <p id="slot-{{ i }}-label" class="md:text-md text-xs text-[#018214] font-semibold">Available</p>
+        </div>
+    
+        <div id="popup-modal{{ i }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md relative">
+                <button class="absolute top-2 right-2 text-gray-500 hover:text-black" data-modal-hide="popup-modal{{ i }}">&times;</button>
+                <svg class="mx-auto mb-4 text-[#8a1616] w-12 h-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                <h3 class="mb-5 text-center text-gray-500 text-lg">This parking slot is currently <span class="font-semibold text-[#8a1616]">Occupied</span>. However, you can still make a reservation.</h3>
+                <div class="flex justify-center gap-2">
+                    <button data-modal-hide="popup-modal{{ i }}" class="bg-[#8a1616] text-white px-4 py-2 rounded hover:bg-[#731212]">Reserve Anyway</button>
+                    <button data-modal-hide="popup-modal{{ i }}" class="bg-gray-200 text-black px-4 py-2 rounded hover:bg-gray-300">No, cancel</button>
+                </div>
+            </div>
+        </div>
+    
+        <div id="popup-modal{{ i }}-reserved" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md relative">
+                <button class="absolute top-2 right-2 text-gray-500 hover:text-black" data-modal-hide="popup-modal{{ i }}-reserved">&times;</button>
+                <svg class="mx-auto mb-4 text-[#afd106] w-12 h-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                <h3 class="mb-5 text-center text-gray-500 text-lg">This parking slot has already been <span class="font-semibold text-[#afd106]">Reserved</span>. However, you can still reserve it for other available time slots.</h3>
+                <div class="flex justify-center gap-2">
+                    <button data-modal-hide="popup-modal{{ i }}-reserved" class="bg-[#afd106] text-white px-4 py-2 rounded hover:bg-[#91ad05]">Reserve Anyway</button>
+                    <button data-modal-hide="popup-modal{{ i }}-reserved" class="bg-gray-200 text-black px-4 py-2 rounded hover:bg-gray-300">No, cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>

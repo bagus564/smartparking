@@ -5,253 +5,271 @@
 {% block akun_content %}
 <title>Current Activity</title>
 <div class="flex flex-row mt-4">
-            <div>
-                <a href="#" class="focus:outline-none text-white bg-[#141E61] focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">Current Reservation</a>
-            </div>
-            <div>
-                <a href="{% url 'adminmonitoring' %}" class="focus:outline-none text-[#141E61] bg-white hover:bg-[#141E61] hover:text-white focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">Park Monitoring</a>
-            </div>
-            <div>
-                <a href="{% url 'adminreservation' %}" class="focus:outline-none text-[#141E61] bg-white hover:bg-[#141E61] hover:text-white focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">All Reservations</a>
-            </div>
-        </div>
+    <div>
+        <a href="#" class="focus:outline-none text-white bg-[#141E61] focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">Current Reservation</a>
+    </div>
+    <div>
+        <a href="{% url 'adminmonitoring' %}" class="focus:outline-none text-[#141E61] bg-white hover:bg-[#141E61] hover:text-white focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">Park Monitoring</a>
+    </div>
+    <div>
+        <a href="{% url 'adminrealtime' %}" class="focus:outline-none text-[#141E61] bg-white hover:bg-[#141E61] hover:text-white focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">Park RealTime</a>
+    </div>
+    <div>
+        <a href="{% url 'adminreservation' %}" class="focus:outline-none text-[#141E61] bg-white hover:bg-[#141E61] hover:text-white focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">All Reservations</a>
+    </div>
+</div>
 
-        <div class="mt-4 bg-white rounded-2xl animate-fade-up">
+<div class="mt-4 bg-white rounded-2xl animate-fade-up">
 
-            <div class="md:px-12 px-8 pt-8 md:pt-12">
-                    <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,34px)]">Current Activity</span>
-            </div>
+    <div class="md:px-12 px-8 pt-8 md:pt-12">
+        <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,34px)]">Current Activity</span>
+    </div>
 
-            <!-- Park -->
-            <div id="slot1" class="flex justify-center">
-                <div class="mx-2 my-4 border border-4 border-[#141E61] rounded-lg shadow-[0_5px_5px_rgba(0,0,0,0.2)]">
+    <div id="slot1" class="flex justify-center">
+        <div class="mx-2 my-4 border border-4 border-[#141E61] rounded-lg shadow-[0_5px_5px_rgba(0,0,0,0.2)]">
 
-                <div class=" grid grid-cols-4 ">
+            <div class=" grid grid-cols-4 ">
 
-                        <!-- Slot 1 -->
-                    <div >
-                        <div class="flex justify-center md:my-2 my-1">
-                            <p class="md:text-md text-sm text-[#141E61] font-semibold">Slot 1</p>
-                        </div>
-                        <div id="slot1-box" class=" py-8 justify-center items-center flex bg-[#8a1616] rounded-2xl mx-3">
-
-                            <a href="#slot1" class="md:px-6" data-modal-target="popup-modal1" data-modal-toggle="popup-modal1">
-                                <img src="{% static 'main/car1.png' %}" alt="" class=" block w-20 md:w-28 h-auto transition duration-300 ease-in-out transform hover:scale-110 hover:brightness-75">
-                            </a>
-                        </div>
-                        <div class="items-center flex justify-center py-2">
-                            <p id="slot1-label" class="text-md text-[#8a1616] font-semibold">Occupied</p>
-                        </div>
+                <div >
+                    <div class="flex justify-center md:my-2 my-1">
+                        <p class="md:text-md text-sm text-[#141E61] font-semibold">Slot 1</p>
                     </div>
+                    <div id="slot1-box" class=" py-8 justify-center items-center flex bg-[#8a1616] rounded-2xl mx-3">
 
-                        <!-- Slot 2 -->
-                    <div>
-                        <div class="flex justify-center md:my-2 my-1">
-                            <p class="md:text-md text-sm text-[#141E61] font-semibold">Slot 2</p>
-                        </div>
-                        <div id="slot2-box" class="py-8 justify-center items-center flex bg-[#afd106] rounded-2xl mx-3">
-
-                            <a href="#slot2" class="md:px-6" data-modal-target="popup-modal2" data-modal-toggle="popup-modal2">
-                                <img src="{% static 'main/car2.png' %}" alt="" class="block w-20 md:w-28 h-auto transition duration-300 ease-in-out transform hover:scale-110 hover:brightness-75">
-                            </a>
-                        </div>
-                        <div class="items-center flex justify-center py-2">
-                            <p id="slot2-label" class="text-md text-[#afd106] font-semibold">Reserved</p>
-                        </div>
+                        <a href="#slot1" class="md:px-6" data-modal-target="popup-modal1" data-modal-toggle="popup-modal1">
+                            <img src="{% static 'main/car1.png' %}" alt="" class=" block w-20 md:w-28 h-auto transition duration-300 ease-in-out transform hover:scale-110 hover:brightness-75">
+                        </a>
                     </div>
+                    <div class="items-center flex justify-center py-2">
+                        <p id="slot1-label" class="text-md text-[#8a1616] font-semibold">Occupied</p>
+                    </div>
+                </div>
 
-                    <!-- Slot 3 -->
                 <div>
                     <div class="flex justify-center md:my-2 my-1">
-                            <p class="md:text-md text-sm text-[#141E61] font-semibold">Slot 3</p>
-                        </div>
-                    <div id="slot3-box" class="py-8 justify-center  flex bg-[#018214] rounded-2xl mx-3">
+                        <p class="md:text-md text-sm text-[#141E61] font-semibold">Slot 2</p>
+                    </div>
+                    <div id="slot2-box" class="py-8 justify-center items-center flex bg-[#018214] rounded-2xl mx-3">
+
+                        <a href="#slot2" class="md:px-6" data-modal-target="popup-modal2" data-modal-toggle="popup-modal2">
+                            <img src="{% static 'main/car2.png' %}" alt="" class="block w-20 md:w-28 h-auto transition duration-300 ease-in-out transform hover:scale-110 hover:brightness-75">
+                        </a>
+                    </div>
+                    <div class="items-center flex justify-center py-2">
+                        <p id="slot2-label" class="text-md text-[#018214] font-semibold">Available</p>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-center md:my-2 my-1">
+                        <p class="md:text-md text-sm text-[#141E61] font-semibold">Slot 3</p>
+                    </div>
+                    <div id="slot3-box" class="py-8 justify-center flex bg-[#018214] rounded-2xl mx-3">
                         <a href="#slot3" class="md:px-6" >
                             <img src="{% static 'main/car3.png' %}" alt="" class=" block w-20 md:w-28 h-auto transition duration-300 ease-in-out transform hover:scale-110 hover:brightness-75">
                         </a>
                     </div>
                     <div class="flex justify-center py-2">
-                            <p id="slot3-label" class="text-md text-[#018214] font-semibold">Available</p>
+                        <p id="slot3-label" class="text-md text-[#018214] font-semibold">Available</p>
                     </div>
                 </div>
 
-                    <!-- Slot 4 -->
                 <div>
                     <div class="flex justify-center md:my-2 my-1">
-                            <p class="md:text-md text-sm text-[#141E61] font-semibold">Slot 4</p>
-                        </div>
+                        <p class="md:text-md text-sm text-[#141E61] font-semibold">Slot 4</p>
+                    </div>
                     <div id="slot4-box" class="py-8 justify-center items-center flex bg-[#018214] rounded-2xl mx-3">
                         <a href="#slot4" class="md:px-6" >
                             <img src="{% static 'main/car4.png' %}" alt="" class="block w-20 md:w-28 h-auto transition duration-300 ease-in-out transform hover:scale-110 hover:brightness-75">
                         </a>
                     </div>
                     <div class="items-center flex justify-center py-2">
-                            <p id="slot4-label" class="text-md text-[#018214] font-semibold">Available</p>
+                        <p id="slot4-label" class="text-md text-[#018214] font-semibold">Available</p>
                     </div>
                 </div>
             </div>
 
-            </div>
-            </div>
-
-            <!-- slot1 -->
-            <div id="slot1" class=" px-8 md:px-12 pb-8">
-                <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,33px)]">Slot 1</span>
-
-                <div class=" rounded-2xl border border-gray-400 items-center">
-                    <div class="m-4">
-                        <p class="md:text-2xl text-xl text-gray-900">
-                            Status: <span id="slot1-status"           ></span>
-                        </p>
-                        <p class="md:text-2xl text-xl text-gray-900">
-                            Username: <span id="slot1-username"       ></span>
-                        </p>
-                        <p class="md:text-2xl text-xl text-gray-900">
-                            Time: <span id="slot1-time"               ></span>
-                        </p>
-                        </div>
-                                    <div class="flex mb-2 justify-center">
-                        <a href="{% url 'adminreservation' %}" class="text-blue-700 underline">
-                            See all Reservations
-                        </a>
-                    </div>            
-                </div>
-            </div>
-
-            <!-- slot2 -->
-            <div id="slot2" class=" px-8 md:px-12 pb-8">
-                <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,33px)]">Slot 2</span>
-
-                <div class=" rounded-2xl border border-gray-400 items-center">
-                    <div class="m-4">
-                        <p class="md:text-2xl text-xl text-gray-900">
-                            Status: <span id="slot2-status"           ></span>
-                        </p>
-                        <p class="md:text-2xl text-xl text-gray-900">
-                            Username: <span id="slot2-username"       ></span>
-                        </p>
-                        <p class="md:text-2xl text-xl text-gray-900">
-                            Time: <span id="slot2-time"               ></span>
-                        </p>
-                                    </div>
-                                    <div class="flex mb-2 justify-center">
-                        <a href="{% url 'adminreservation' %}" class="text-blue-700 underline">
-                            See all Reservations
-                        </a>
-                    </div> 
-                </div>
-                
-            </div>
-
-            <!-- slot3 -->
-            <div id="slot3" class=" px-8 md:px-12 pb-8">
-                <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,33px)]">Slot 3</span>
-
-                <div class=" rounded-2xl border border-gray-400 items-center">
-                    <div class="m-4">
-                        <p class="md:text-2xl text-xl text-gray-900">
-                            Status: <span id="slot3-status"           ></span>
-                        </p>
-                        <p class="md:text-2xl text-xl text-gray-900">
-                            Username: <span id="slot3-username"       ></span>
-                        </p>
-                        <p class="md:text-2xl text-xl text-gray-900">
-                            Time: <span id="slot3-time"               ></span>
-                        </p>
-                                    </div>
-                                    <div class="flex mb-2 justify-center">
-                        <a href="{% url 'adminreservation' %}" class="text-blue-700 underline">
-                            See all Reservations
-                        </a>
-                    </div>           
-                </div>
-            </div>
-
-            <!-- slot4 -->
-            <div id="slot4" class=" px-8 md:px-12 pb-8">
-                <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,33px)]">Slot 4</span>
-
-                <div class=" rounded-2xl border border-gray-400 items-center">
-                    <div class="m-4">
-                    <p class="md:text-2xl text-xl text-gray-900">
-                        Status: <span id="slot4-status"           ></span>
-                    </p>
-                    <p class="md:text-2xl text-xl text-gray-900">
-                        Username: <span id="slot4-username"       ></span>
-                    </p>
-                    <p class="md:text-2xl text-xl text-gray-900">
-                        Time: <span id="slot4-time"               ></span>
-                    </p>
-                                </div>
-                                <div class="flex mb-2 justify-center">
-                    <a href="{% url 'adminreservation' %}" class="text-blue-700 underline">
-                        See all Reservations
-                    </a>
-                </div>             
-                </div>
-            </div>
-            
-
         </div>
+    </div>
+
+    <div id="slot1" class=" px-8 md:px-12 pb-8">
+        <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,33px)]">Slot 1</span>
+
+        <div class=" rounded-2xl border border-gray-400 items-center">
+            <div class="m-4">
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Status: <span id="slot1-status"></span>
+                </p>
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Username: <span id="slot1-username"></span>
+                </p>
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Time: <span id="slot1-time"></span>
+                </p>
+            </div>
+            <div class="flex mb-2 justify-center">
+                <a href="{% url 'adminreservation' %}" class="text-blue-700 underline">
+                    See all Reservations
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="slot2" class=" px-8 md:px-12 pb-8">
+        <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,33px)]">Slot 2</span>
+
+        <div class=" rounded-2xl border border-gray-400 items-center">
+            <div class="m-4">
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Status: <span id="slot2-status"></span>
+                </p>
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Username: <span id="slot2-username"></span>
+                </p>
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Time: <span id="slot2-time"></span>
+                </p>
+            </div>
+            <div class="flex mb-2 justify-center">
+                <a href="{% url 'adminreservation' %}" class="text-blue-700 underline">
+                    See all Reservations
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="slot3" class=" px-8 md:px-12 pb-8">
+        <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,33px)]">Slot 3</span>
+
+        <div class=" rounded-2xl border border-gray-400 items-center">
+            <div class="m-4">
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Status: <span id="slot3-status"></span>
+                </p>
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Username: <span id="slot3-username"></span>
+                </p>
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Time: <span id="slot3-time"></span>
+                </p>
+            </div>
+            <div class="flex mb-2 justify-center">
+                <a href="{% url 'adminreservation' %}" class="text-blue-700 underline">
+                    See all Reservations
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="slot4" class=" px-8 md:px-12 pb-8">
+        <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,33px)]">Slot 4</span>
+
+        <div class=" rounded-2xl border border-gray-400 items-center">
+            <div class="m-4">
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Status: <span id="slot4-status"></span>
+                </p>
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Username: <span id="slot4-username"></span>
+                </p>
+                <p class="md:text-2xl text-xl text-gray-900">
+                    Time: <span id="slot4-time"></span>
+                </p>
+            </div>
+            <div class="flex mb-2 justify-center">
+                <a href="{% url 'adminreservation' %}" class="text-blue-700 underline">
+                    See all Reservations
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ===========  COLOR MAP  =========== */
-  const COLORS = {
-    occupied : { bg:'#8a1616', text:'#8a1616', label:'Occupied'  },
-    reserved : { bg:'#afd106', text:'#afd106', label:'Reserved'  },
-    available: { bg:'#018214', text:'#018214', label:'Available' },
-    disabled : { bg:'#A0A0A0', text:'#A0A0A0', label:'Disabled'  },
-  };
+    /* ===========  COLOR MAP  =========== */
+    const COLORS = {
+        // pastikan warna ini sesuai dengan Tailwind classes jika Anda menggunakannya
+        occupied : { bg:'#8a1616', text:'#8a1616', label:'Occupied'  },
+        reserved : { bg:'#afd106', text:'#afd106', label:'Reserved'  },
+        available: { bg:'#018214', text:'#018214', label:'Available' },
+        disabled : { bg:'#A0A0A0', text:'#A0A0A0', label:'Disabled'  },
+    };
 
-  /* ===========  HELPERS  =========== */
-  const todayISO = () => {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());  // konversi ke waktu lokal
-    return now.toISOString().slice(0, 10);
-  };
-  /* ===========  UI RENDERERS  =========== */
-  function renderBox(n, status){
-    const box   = document.getElementById(`slot${n}-box`);
-    const label = document.getElementById(`slot${n}-label`);
-    if(!box || !label) return;
+    /* ===========  HELPERS  =========== */
+    const todayISO = () => {
+        const now = new Date();
+        // Menggunakan waktu lokal untuk tanggal, yang seharusnya sesuai dengan target_date di Django
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        return now.toISOString().slice(0, 10);
+    };
+    
+    /* ===========  UI RENDERERS  =========== */
+    function renderBox(n, status){
+        const box   = document.getElementById(`slot${n}-box`);
+        const label = document.getElementById(`slot${n}-label`);
+        if(!box || !label) return;
 
-    // reset
-    box.className   = "py-8 flex justify-center items-center rounded-2xl mx-3";
-    label.className = "text-md font-semibold";
+        // Reset class dan atur style/text content
+        box.className   = "py-8 flex justify-center items-center rounded-2xl mx-3";
+        label.className = "text-md font-semibold";
 
-    box.style.backgroundColor = COLORS[status].bg;
-    label.style.color         = COLORS[status].text;
-    label.textContent         = COLORS[status].label;
-  }
+        box.style.backgroundColor = COLORS[status].bg;
+        label.style.color         = COLORS[status].text;
+        label.textContent         = COLORS[status].label;
+    }
 
-  function renderDetail(n, status, username, time){
-    // id di anchor section: slot2 → slotN‐status|username|time
-    document.getElementById(`slot${n}-status`).textContent   = COLORS[status].label;
-    document.getElementById(`slot${n}-username`).textContent = (status === 'reserved') ? username : '';
-    document.getElementById(`slot${n}-time`).textContent     = (status === 'reserved') ? time     : '';
-  }
+    function renderDetail(n, status, username, time){
+        const statusEl = document.getElementById(`slot${n}-status`);
+        const usernameEl = document.getElementById(`slot${n}-username`);
+        const timeEl = document.getElementById(`slot${n}-time`);
 
-  /* ===========  POLLING  =========== */
-  function poll(){
-    fetch(`/api/admin-home-details/?date=${todayISO()}`)
-      .then(r => r.json())
-      .then(list => {
-        list.forEach(s => {
-          const n = s.spot_number;                 // 1 … 4
-          renderBox(n,     s.status);              // kotak atas
-          renderDetail(n,  s.status, s.username, s.time);   // anchor bawah
-        });
-      })
-      .catch(console.error);
-  }
+        statusEl.textContent = COLORS[status].label;
+        
+        // Perbaikan: Tampilkan Username/Time jika 'reserved' ATAU 'occupied' (jika data tersedia)
+        // Kita berasumsi data username dan time hanya diisi di backend jika ada reservasi
+        const showDetails = (status === 'reserved' || (status === 'occupied' && username && time));
 
-  poll();                    // initial load
-  setInterval(poll, 3000);   // update setiap 3 detik
+        if (showDetails) {
+            usernameEl.textContent = username || 'N/A';
+            timeEl.textContent     = time     || 'N/A';
+        } else {
+            usernameEl.textContent = '';
+            timeEl.textContent     = '';
+        }
+    }
+
+    /* ===========  POLLING  =========== */
+    function poll(){
+        // Mengambil data untuk hari ini
+        fetch(`/api/admin-home-details/?date=${todayISO()}`)
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return r.json();
+            })
+            .then(list => {
+                list.forEach(s => {
+                    const n = s.spot_number;
+                    // Pastikan kita hanya memproses slot yang ada di HTML (1-4)
+                    if (n >= 1 && n <= 4) {
+                         renderBox(n,     s.status);
+                         renderDetail(n,  s.status, s.username, s.time);
+                    }
+                });
+            })
+            .catch(error => console.error("Error fetching admin home details:", error));
+    }
+
+    poll();                    // initial load
+    setInterval(poll, 3000);   // update setiap 3 detik
 });
 </script>
 
 
 {% endblock %}
-            

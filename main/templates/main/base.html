@@ -8,9 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Istok+Web&display=swap" rel="stylesheet">
     <link rel="icon" href="{% static 'main/iconweb.ico' %}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
-   <style>
+    <style>
         body {
             font-family: 'Istok Web', sans-serif;
         }
@@ -29,26 +30,41 @@
         .animate-fade-in-down {
             animation: fadeInDown 0.5s ease-out;
         }
+        
+        /* CSS untuk spinner yang berputar terbalik */
+        @keyframes spin-reverse {
+            from {
+                transform: rotate(360deg);
+            }
+            to {
+                transform: rotate(0deg);
+            }
+        }
+        .animate-spin-reverse {
+            animation: spin-reverse 1.5s linear infinite;
+        }
     </style>
+    
+    {% block title %}<title>WTP Parkir Cerdas</title>{% endblock %}
+
 </head>
 
 <body>
 
     <div id="loading-spinner" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center z-50 hidden transition-opacity duration-300 ease-in-out">
-  <!-- Double Ring Spinner -->
-  <div class="relative w-20 h-20">
-    <div class="absolute inset-0 border-4 border-t-transparent border-[#EEEE] rounded-full animate-spin"></div>
-    <div class="absolute inset-2 border-4 border-b-transparent border-[#F2C94C] rounded-full animate-spin-reverse"></div>
-  </div>
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 border-4 border-t-transparent border-[#EEEE] rounded-full animate-spin"></div>
+            <div class="absolute inset-2 border-4 border-b-transparent border-[#F2C94C] rounded-full animate-spin-reverse"></div>
+        </div>
 
-  <div class="mt-6 text-[#EEEE] text-xl font-semibold tracking-wide flex gap-1">
-    <span>Loading</span>
-    <span class="animate-bounce">.</span>
-    <span class="animate-bounce delay-150">.</span>
-    <span class="animate-bounce delay-300">.</span>
-  </div>
-</div>
- 
+        <div class="mt-6 text-[#EEEE] text-xl font-semibold tracking-wide flex gap-1">
+            <span>Loading</span>
+            <span class="animate-bounce">.</span>
+            <span class="animate-bounce delay-150">.</span>
+            <span class="animate-bounce delay-300">.</span>
+        </div>
+    </div>
+    
 
     {% block start %}
 
@@ -56,41 +72,86 @@
 
 
 <script>
-  const spinner = document.getElementById("loading-spinner");
+    // Kode Spinner yang sudah ada
+    const spinner = document.getElementById("loading-spinner");
 
-  // 1. Spinner saat form disubmit
-  document.querySelectorAll("form").forEach((form) => {
-    form.addEventListener("submit", () => {
-      spinner.classList.remove("hidden");
+    // 1. Spinner saat form disubmit
+    document.querySelectorAll("form").forEach((form) => {
+        form.addEventListener("submit", () => {
+            // Sembunyikan pesan sebelum submit agar tidak muncul lagi saat redirect
+            // Ini opsional, tapi membantu membersihkan tampilan
+            document.querySelectorAll('.django-message-popup-hidden').forEach(el => el.remove()); 
+            
+            spinner.classList.remove("hidden");
+        });
     });
-  });
 
-  // 2. Spinner saat klik <a> link (kecuali link internal)
-  document.querySelectorAll("a[href]").forEach((link) => {
-    const href = link.getAttribute("href");
-    const target = link.getAttribute("target");
+    // 2. Spinner saat klik <a> link (kecuali link internal)
+    document.querySelectorAll("a[href]").forEach((link) => {
+        const href = link.getAttribute("href");
+        const target = link.getAttribute("target");
 
-    if (
-      href.startsWith("#") ||
-      href.startsWith("javascript:") ||
-      href.startsWith("mailto:") ||
-      href.startsWith("tel:") ||
-      (target && target === "_blank")
-    ) return;
+        if (
+            href.startsWith("#") ||
+            href.startsWith("javascript:") ||
+            href.startsWith("mailto:") ||
+            href.startsWith("tel:") ||
+            (target && target === "_blank")
+        ) return;
 
-    link.addEventListener("click", () => {
-      spinner.classList.remove("hidden");
+        link.addEventListener("click", () => {
+            spinner.classList.remove("hidden");
+        });
     });
-  });
 
-  // 3. Hilangkan spinner saat halaman selesai load atau kembali dari cache
-  window.addEventListener("load", () => {
-    spinner.classList.add("hidden");
-  });
+    // 3. Hilangkan spinner saat halaman selesai load atau kembali dari cache
+    window.addEventListener("load", () => {
+        spinner.classList.add("hidden");
+    });
 
-  window.addEventListener("pageshow", () => {
-    spinner.classList.add("hidden");
-  });
+    window.addEventListener("pageshow", () => {
+        spinner.classList.add("hidden");
+    });
+    
+    // ----------------------------------------------------
+    // 🟢 2. FUNGSI POPUP NOTIFIKASI DARI DJANGO MESSAGES
+    // ----------------------------------------------------
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            {% for message in messages %}
+                // Tentukan ikon berdasarkan tag pesan
+                let icon = 'info';
+                let title = 'Informasi';
+                const messageTags = '{{ message.tags }}';
+                
+                if (messageTags.includes('success')) {
+                    icon = 'success';
+                    title = 'Berhasil!';
+                } else if (messageTags.includes('error')) {
+                    icon = 'error';
+                    title = 'Gagal!';
+                } else if (messageTags.includes('warning')) {
+                    icon = 'warning';
+                    title = 'Peringatan!';
+                }
+
+                // Tampilkan pesan menggunakan SweetAlert
+                Swal.fire({
+                    title: title, 
+                    html: "{{ message|escapejs }}", // Gunakan html agar baris baru/formatting lain tetap terbaca
+                    icon: icon,
+                    confirmButtonText: 'OK',
+                    toast: messageTags.includes('success') ? true : false, // Jadikan toast untuk pesan sukses (lebih kecil)
+                    position: messageTags.includes('success') ? 'top-end' : 'center', // Posisi berbeda
+                    showConfirmButton: !messageTags.includes('success'), // Sembunyikan tombol OK jika toast
+                    timer: messageTags.includes('success') ? 4000 : undefined, // Auto-close untuk toast
+                    timerProgressBar: messageTags.includes('success') ? true : false,
+                });
+                
+            {% endfor %}
+        {% endif %}
+    });
+
 </script>
 </body>
 

@@ -1,0 +1,374 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block akun_content %}
+<title>Realtime</title>
+
+<div class="flex flex-row mt-4">
+    <div>
+        <a href="{% url 'adminhome' %}" class="focus:outline-none text-[#141E61] bg-white hover:bg-[#141E61] hover:text-white focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">Current Reservation</a>
+    </div>
+    <div>
+        <a href="{% url 'adminmonitoring' %}" class="focus:outline-none text-[#141E61] bg-white hover:bg-[#141E61] hover:text-white focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">Park Monitoring</a>
+    </div>
+    <div>
+        <a href="" class="focus:outline-none text-white bg-[#141E61] focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">Park RealTime</a>
+    </div>
+    <div>
+        <a href="{% url 'adminreservation' %}" class="focus:outline-none text-[#141E61] bg-white hover:bg-[#141E61] hover:text-white focus:ring-2 font-medium rounded-2xl md:text-md text-sm md:px-8 px-2 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">All Reservations</a>
+    </div>
+</div>
+
+<div class="mt-4 bg-white rounded-2xl animate-fade-up p-8">
+
+    <div class="flex justify-center">
+        <h2 class="text-2xl md:text-4xl font-semibold tracking-wide text-[#141E61] fade-up border-b-2 border-gray-500 pb-1">
+            Realtime Parking Status
+        </h2>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center py-4 px-2">
+        <label class="flex items-center gap-2 mb-4 md:mb-0 border border-gray-600 cursor-pointer px-3 py-1.5 rounded-xl transition-all duration-300 hover:shadow-md">
+            <input type="checkbox" id="selectAll" class="w-4 h-4 text-[#141E61] bg-gray-300 border-gray-300 rounded-sm focus:ring-[#141E61] box-checkbox-all">
+            <span class="text-gray-700 font-medium">Select/Deselect All Visible Slots</span>
+        </label>
+        
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <label for="actionSelect" class="text-gray-700 text-sm font-medium">Action:</label>
+                <select id="actionSelect" class="px-4 md:pr-12 pr-8 md:text-md text-sm md:py-2 py-1.5 border rounded">
+                    <option value="Available">Set Available</option>
+                    <option value="Disabled">Set Disabled (Perbaikan/Acara)</option>
+                    </select>
+            </div>
+            <div>
+                <button onclick="handleAdminAction()" class="bg-[#141E61] md:text-md text-sm text-white md:px-12 px-8 md:py-2 py-1.5 rounded hover:bg-blue-700 transition-all duration-300">Apply Action</button>
+            </div>
+        </div>
+    </div>
+    
+    <hr class="my-4">
+
+    <div id="realtime-slots-container" class="pb-4">
+        <form id="slot-form">
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
+                {% for slot in slot_list %}
+                    {% with slot_id=slot.spot_number|stringformat:"s" %}
+                        <div class="flex flex-col items-center">
+                            <label for="box-{{ slot_id }}" class="flex justify-center text-sm font-semibold text-[#141E61]">Slot {{ slot_id }}</label>
+                            
+                            <div class="flex justify-center py-2">
+                                <input type="checkbox" id="box-{{ slot_id }}" data-slot-number="{{ slot_id }}" class="hidden peer admin-box-checkbox">
+                                
+                                <label id="slot-{{ slot_id }}-box" for="box-{{ slot_id }}" 
+                                        class="w-[120px] h-[120px] flex flex-col items-center justify-center p-2 text-white bg-gray-300 rounded-2xl cursor-pointer shadow-md 
+                                             peer-checked:border-4 peer-checked:border-yellow-400 peer-checked:bg-opacity-80 transition-all duration-200">
+                                    
+                                    <img id="car-img-{{ slot_id }}" 
+                                        src="{% static 'main/car1.png' %}" 
+                                        class="w-10 md:w-12" alt="">
+                                    
+                                    <span id="detail-{{ slot_id }}" class="text-xs mt-1 text-white font-medium hidden"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex flex-col items-center">
+                                <p id="slot-{{ slot_id }}-label" class="text-xs font-semibold text-gray-700">Loading...</p>
+                            </div>
+                            
+                            </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        </form>
+    </div>
+</div>
+<!-- ───── FORM TAMBAH PENGUMUMAN ───── -->
+<div class="bg-white p-6 rounded-xl shadow-md mb-6 border border-gray-300">
+    <h3 class="text-xl font-semibold text-[#141E61] mb-4">Tambah Pengumuman</h3>
+
+    <form id="announcementForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <div class="md:col-span-2">
+            <label class="font-medium text-gray-700">Judul Acara</label>
+            <input type="text" id="ann_title" class="w-full px-3 py-2 border rounded" required>
+        </div>
+
+        <div class="md:col-span-2">
+            <label class="font-medium text-gray-700">Deskripsi</label>
+            <textarea id="ann_description" rows="3" class="w-full px-3 py-2 border rounded"></textarea>
+        </div>
+
+        <div class="md:col-span-2"> 
+            <label class="font-medium text-gray-700">Slot Parkir (misal: 17-18)</label>
+            <input type="text" id="ann_slots" class="w-full px-3 py-2 border rounded" required>
+        </div>
+
+        <div>
+            <label class="font-medium text-gray-700">Tanggal Mulai</label>
+            <input type="date" id="ann_start" class="w-full px-3 py-2 border rounded" required>
+        </div>
+
+        <div>
+            <label class="font-medium text-gray-700">Tanggal Selesai</label>
+            <input type="date" id="ann_end" class="w-full px-3 py-2 border rounded" required>
+        </div>
+        
+        <div>
+            <label class="font-medium text-gray-700">Warna Label</label>
+            <select id="ann_color" class="w-full px-3 py-2 border rounded">
+                <option value="yellow">Kuning</option>
+                <option value="red">Merah</option>
+                <option value="gray">Abu-abu</option>
+            </select>
+        </div>
+        
+        <div class="flex items-end">
+            <button type="submit"
+                class="w-full bg-[#141E61] text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                Simpan Pengumuman
+            </button>
+        </div>
+
+    </form>
+</div>
+<!-- ───── DAFTAR PENGUMUMAN ───── -->
+<div id="announcementList"></div>
+
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* ───────────────── COLOR MAP (Tailwind) ───────────────── */
+    const STATUS_MAP = {
+        'Terisi': { bg: 'bg-red-500', text: 'text-red-500', label: 'Terisi' },
+        'Kosong': { bg: 'bg-green-500', text: 'text-green-500', label: 'Kosong' },
+        'Disabled': { bg: 'bg-gray-400', text: 'text-gray-500', label: 'Perbaikan/Acara' },
+    };
+    
+    // const SPOT_COUNT = 20; // Tidak diperlukan lagi
+
+    /* ───────────────── HELPERS ───────────────── */
+    function getCookie(name) {
+        const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return v ? v.pop() : '';
+    }
+
+    /* ───────────────── RENDER SLOT ───────────────── */
+    function renderSlot(n, status, distance = null){ // Parameter buzzerActive dihapus
+        const statusKey = STATUS_MAP[status] ? status : 'Disabled'; 
+        const statusConfig = STATUS_MAP[statusKey];
+
+        const box = document.getElementById(`slot-${n}-box`);
+        const label = document.getElementById(`slot-${n}-label`);
+        // const btn = document.getElementById(`buzzer-btn-slot${n}`); // Dihapus
+        const detail = document.getElementById(`detail-${n}`);
+
+        if(!box || !label) return;
+
+        // 1. Update Warna Box
+        Object.values(STATUS_MAP).forEach(s => box.classList.remove(s.bg));
+        box.classList.add(statusConfig.bg);
+
+        // 2. Update Label Teks & Warna
+        Object.values(STATUS_MAP).forEach(s => label.classList.remove(s.text));
+        label.classList.add(statusConfig.text);
+        label.textContent = statusConfig.label;
+
+        // 3. Update Tombol Buzzer (Logika Buzzer dihapus)
+        // Dihapus
+
+        // 4. Detail Jarak (opsional, jika Anda ingin menampilkan jarak)
+        if (detail && distance !== null) {
+            // detail.textContent = `(${distance} cm)`;
+        }
+    }
+
+
+    /* ───────────────── POLL STATUS ───────────────── */
+    function poll() {
+        // Mengirim permintaan ke API yang sekarang tidak perlu mengembalikan status buzzer
+        fetch('{% url "realtime_data_admin" %}') 
+            .then(r => r.json())
+            .then(data => data.forEach(s => {
+                // Sekarang hanya memanggil dengan 3 parameter
+                renderSlot(s.spot_number, s.status, s.distance); 
+            }))
+            .catch(err => console.error("Error fetching realtime data:", err));
+    }
+
+    /* langsung panggil & set interval */
+    poll();
+    const pollInterval = setInterval(poll, 2000); // Poll setiap 5 detik
+
+    /* ───────────────── ADMIN ACTION HANDLER ───────────────── */
+    window.handleAdminAction = function () {
+        const action = document.getElementById('actionSelect').value;
+        const selectedSlots = [...document.querySelectorAll('.admin-box-checkbox')]
+            .filter(cb => cb.checked)
+            .map(cb => cb.dataset.slotNumber); 
+
+        if (selectedSlots.length === 0) {
+            alert('Silakan pilih setidaknya satu slot.');
+            return;
+        }
+
+        // Karena Opsi BuzzerOff sudah dihapus dari select, kita tidak perlu memeriksa action === 'BuzzerOff' lagi.
+
+        // Aksi Set Available atau Set Disabled
+        const newStatus = (action === 'Available' ? 'Kosong' : 'Disabled');
+        const disableValue = (action === 'Disabled');
+
+        fetch('/api/admin-set-spot-status/', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ spot_numbers: selectedSlots, status: newStatus, disable: disableValue })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Status ${selectedSlots.length} slot berhasil diubah menjadi ${newStatus}.`);
+                poll(); // Refresh tampilan
+                document.querySelectorAll('.admin-box-checkbox').forEach(cb => cb.checked = false);
+            } else {
+                alert('Update status gagal: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Request failed. Check console.');
+        });
+    };
+    
+    /* ───────────────── SELECT ALL ───────────────── */
+    document.getElementById('selectAll').addEventListener('change', function(){
+        document.querySelectorAll('.admin-box-checkbox').forEach(cb => cb.checked = this.checked);
+    });
+
+    /* ───────────────── SIMPAN PENGUMUMAN ───────────────── */
+document.getElementById('announcementForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const payload = {
+        description: document.getElementById('ann_description').value,
+        title: document.getElementById('ann_title').value,
+        slot_numbers: document.getElementById('ann_slots').value,
+        start_date: document.getElementById('ann_start').value,
+        end_date: document.getElementById('ann_end').value,
+        color: document.getElementById('ann_color').value,
+    };
+
+    fetch('/api/add-announcement/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            alert("Pengumuman berhasil ditambahkan!");
+            loadAnnouncements();
+            document.getElementById("announcementForm").reset();
+        } else {
+            alert("Gagal menyimpan: " + d.error);
+        }
+    });
+});
+
+
+/* ───────────────── LOAD PENGUMUMAN ───────────────── */
+function loadAnnouncements() {
+    fetch('{% url "get_announcements_list" %}')
+        .then(r => r.json())
+        .then(data => {
+            let html = `
+                <h3 class="text-xl font-semibold text-[#141E61] mt-6 mb-3">Daftar Pengumuman (${data.length} item)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            `;
+
+            data.forEach(a => {
+                const colorMap = {
+                    yellow: 'border-yellow-500',
+                    red: 'border-red-500',
+                    gray: 'border-gray-500'
+                };
+
+                html += `
+                    <div class="p-4 rounded-xl shadow border-l-4 ${colorMap[a.label_color]} bg-white relative">
+                        <h4 class="font-bold text-[#141E61]">${a.title}</h4>
+                        ${a.description ? `<p class="text-sm text-gray-700">${a.description}</p>` : ''}
+                        <p class="text-xs text-gray-500 mt-2">Tanggal: ${a.start_date} – ${a.end_date}</p>
+                        <p class="text-xs text-gray-500">Slot: ${a.slot_numbers}</p>
+                        <p class="text-xs text-gray-500">Dibuat: ${a.created_at}</p>
+
+                        <button 
+                            data-announcement-id="${a.id}"
+                            onclick="handleDeleteAnnouncement(${a.id}, event)"
+                            class="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1 rounded-full bg-gray-100 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                `;
+            });
+
+            html += "</div>";
+            document.getElementById("announcementList").innerHTML = html;
+        })
+        .catch(err => console.error("Error loading announcement list:", err));
+}
+
+
+/* ───────────────── FUNGSI HAPUS PENGUMUMAN BARU ───────────────── */
+window.handleDeleteAnnouncement = function(announcementId, event) {
+    if (!confirm(`Apakah Anda yakin ingin menghapus Pengumuman ID ${announcementId}?`)) {
+        return;
+    }
+
+    // Menggunakan Django URL tag untuk mendapatkan URL yang benar
+    const deleteUrl = '{% url "delete_announcement" pk=0 %}'.replace('/0/', `/${announcementId}/`);
+    
+    fetch(deleteUrl, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            alert(d.message);
+            loadAnnouncements(); // Muat ulang daftar setelah berhasil
+        } else {
+            alert("Gagal menghapus: " + d.error);
+        }
+    })
+    .catch(err => {
+        console.error("Delete request failed:", err);
+        alert('Gagal mengirim permintaan hapus. Cek console.');
+    });
+}
+
+// Load on start
+loadAnnouncements();
+
+const loadingSpinner = document.getElementById('loading-spinner');
+if (loadingSpinner) {
+    loadingSpinner.style.opacity = 0;
+    // Hapus elemen setelah transisi selesai
+    setTimeout(() => { 
+        loadingSpinner.remove();
+    }, 300); 
+}
+
+});
+</script>
+
+{% endblock %}

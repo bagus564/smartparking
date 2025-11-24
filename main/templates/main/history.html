@@ -1,6 +1,7 @@
 {% extends "account_base.html" %}
 {% load static %}
 {% block akun_content %}
+<title>History</title>
 
 <div class="flex flex-row mt-4">
     <div>
@@ -13,7 +14,7 @@
 
 <div class="mt-4 bg-white rounded-2xl ">
     <div class="md:px-12 px-8 pt-8 md:pt-12 ">
-        <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,34px)]">Reservation Records</span>            
+        <span class="text-[30px] text-[#141E61] underline md:text-[clamp(15px,4vw,34px)]">Reservation Records</span>
     </div>
     
     <div class="md:px-12 px-4 pt-4 grid justify-items-end">
@@ -44,14 +45,11 @@
                     </td>
                     <td class="px-6 py-4">{{ reservation.spot_id }}</td>
                     <td class="px-6 py-4">
-                        <!-- View Button -->
                         <button data-modal-target="view{{ reservation.id }}" data-modal-toggle="view{{ reservation.id }}" class="focus:outline-none text-white bg-blue-700 hover:bg-blue-900 hover:underline focus:ring-2 font-medium rounded-xl md:text-md text-sm md:px-6 px-4 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">View</button>
 
-                        <!-- Car Details Modal -->
                         <div id="view{{ reservation.id }}" tabindex="-1" aria-hidden="true" class="text-left hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
                             <div class="relative p-4 w-full max-w-md max-h-full">
                                 <div class="relative bg-white rounded-lg shadow-sm ">
-                                    <!-- Header -->
                                     <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t ">
                                         <h3 class="text-xl font-semibold text-gray-900">Car Details</h3>
                                         <button type="button" class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="view{{ reservation.id }}">
@@ -61,7 +59,6 @@
                                             <span class="sr-only">Close modal</span>
                                         </button>
                                     </div>
-                                    <!-- Body -->
                                     <div class="p-5 grid grid-cols-2 gap-4">
                                         <div>
                                             <label class="text-sm text-gray-500">Brand:</label>
@@ -99,61 +96,80 @@
                         <span class="countdown" data-start="{{ reservation.start_time|date:'c' }}" data-end="{{ reservation.end_time|date:'c' }}">Loading...</span>
                     </td>
                     <td class="px-6 py-4">
-                        <span class="status text-[#afd106] font-semibold">Loading...</span>
+                        {% if reservation.display_status == 'Aktif' or reservation.display_status == 'Active' %}
+                            <span class="text-green-600 font-semibold">{{ reservation.display_status }}</span>
+                        {% elif reservation.display_status == 'Selesai' or reservation.display_status == 'Finished' %}
+                            <span class="text-gray-500 font-semibold">{{ reservation.display_status }}</span>
+                        {% elif reservation.display_status == 'Dibatalkan' or reservation.display_status == 'Canceled' %}
+                            <span class="text-red-600 font-semibold">{{ reservation.display_status }}</span>
+                        {% else %}
+                            <span class="text-[#afd106] font-semibold">{{ reservation.display_status }}</span> 
+                        {% endif %}
                     </td>
-                   <td class="px-6 py-4">
-  <!-- Cancel Button & Modal -->
-  <button type="button"
-    data-modal-target="cancel{{ reservation.id }}"
-    data-modal-toggle="cancel{{ reservation.id }}"
-    class="focus:outline-none text-white bg-red-700 hover:bg-red-900 hover:underline focus:ring-2 font-medium rounded-xl md:text-md text-sm px-4 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">
-    Cancel
-  </button>
+                    <td class="px-6 py-4">
+                        {% if reservation.is_active %}
+                            
+                            <button type="button"
+                                data-modal-target="cancel{{ reservation.id }}"
+                                data-modal-toggle="cancel{{ reservation.id }}"
+                                class="focus:outline-none text-white bg-red-700 hover:bg-red-900 hover:underline focus:ring-2 font-medium rounded-xl md:text-md text-sm px-4 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">
+                                Cancel
+                            </button>
+                            
+                            <form method="POST" action="{% url 'delete_reservation' reservation.id %}?next=history">
+                                {% csrf_token %}
+                                <div id="cancel{{ reservation.id }}" tabindex="-1"
+                                    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                    <div class="relative p-4 w-full max-w-md max-h-full">
+                                        <div class="relative bg-white rounded-lg shadow-sm">
+                                            <button type="button"
+                                                class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                                                data-modal-hide="cancel{{ reservation.id }}">
+                                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                    viewBox="0 0 14 14">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                                </svg>
+                                                <span class="sr-only">Close modal</span>
+                                            </button>
+                                            <div class="p-4 md:p-5 text-center">
+                                                <svg class="mx-auto mb-4 text-gray-400 w-12 h-12" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none" viewBox="0 0 20 20">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                                <h3 class="mb-5 text-lg font-normal text-gray-500">Are you sure want to cancel this reservation?</h3>
+                                                <div class="grid grid-cols-2 gap-4">
+                                                    <button type="submit"
+                                                        class="py-2.5 px-5 text-sm font-medium text-white focus:outline-none bg-red-700 rounded-lg border border-gray-200 hover:bg-red-900 focus:z-10 focus:ring-4 focus:ring-gray-100">Yes</button>
+                                                    <button data-modal-hide="cancel{{ reservation.id }}" type="button"
+                                                        class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100">No</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
 
-  <!-- Tombol Matikan Buzzer -->
-  <button type="button"
-    onclick="turnOffBuzzer('{{ reservation.spot_id }}', this)"
-    class="focus:outline-none text-white bg-yellow-500 hover:bg-yellow-600 hover:underline focus:ring-2 font-medium rounded-xl md:text-md text-sm px-4 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">
-    Matikan Buzzer
-  </button>
+                            {% if reservation.start_time <= now and reservation.end_time >= now %}
+                                <button type="button"
+                                    id="buzzerBtn{{ reservation.spot_id }}"
+                                    onclick="turnOffBuzzer('{{ reservation.spot_id }}', this)"
+                                    class="focus:outline-none text-white bg-green-500 hover:bg-green-600 font-medium rounded-xl md:text-md text-sm px-4 py-2 shadow-md me-2 mb-2 transition-all ease-in duration-300">
+                                    Buzzer Aktif
+                                </button>
+                            {% else %}
+                                <button type="button"
+                                    disabled
+                                    class="focus:outline-none bg-gray-400 text-white rounded-xl px-4 py-2 shadow-md me-2 mb-2">
+                                    Belum masuk waktu reservasi
+                                </button>
+                            {% endif %}
+                        
+                        {% else %}
+                            {% endif %}
 
-  <!-- Cancel Modal -->
-  <form method="POST" action="{% url 'delete_reservation' reservation.id %}?next=history">
-    {% csrf_token %}
-    <div id="cancel{{ reservation.id }}" tabindex="-1"
-      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-      <div class="relative p-4 w-full max-w-md max-h-full">
-        <div class="relative bg-white rounded-lg shadow-sm">
-          <button type="button"
-            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-            data-modal-hide="cancel{{ reservation.id }}">
-            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 14 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-            </svg>
-            <span class="sr-only">Close modal</span>
-          </button>
-          <div class="p-4 md:p-5 text-center">
-            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-              fill="none" viewBox="0 0 20 20">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-            <h3 class="mb-5 text-lg font-normal text-gray-500">Are you sure want to cancel this reservation?</h3>
-            <div class="grid grid-cols-2 gap-4">
-              <button type="submit"
-                class="py-2.5 px-5 text-sm font-medium text-white focus:outline-none bg-red-700 rounded-lg border border-gray-200 hover:bg-red-900 focus:z-10 focus:ring-4 focus:ring-gray-100">Yes</button>
-              <button data-modal-hide="cancel{{ reservation.id }}" type="button"
-                class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100">No</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
-</td>
-
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -161,42 +177,48 @@
     </div>
     <div class="h-4"></div>
 </div>
+
 <script>
-  // Ambil token CSRF Django
-  function getCookie(name) {
-    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return v ? v.pop() : '';
-  }
+ // Ambil token CSRF Django
+ function getCookie(name) {
+ const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+ return v ? v.pop() : '';
+ }
 
-  // Fungsi untuk mematikan buzzer
-  function turnOffBuzzer(slotNumber, button) {
-    if (!confirm(Matikan buzzer untuk slot ${slotNumber}?)) return;
+ // Fungsi untuk mematikan buzzer
+ function turnOffBuzzer(slotNumber, button) {
+ if (!confirm(`Matikan buzzer untuk slot ${slotNumber}?`)) return;
 
-    fetch("/api/admin-turn-off-buzzer/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-      body: JSON.stringify({ slot_number: slotNumber })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        button.innerText = "Dimatikan";
-        button.disabled = true;
-        button.classList.remove("bg-yellow-500", "hover:bg-yellow-600");
-        button.classList.add("bg-gray-400");
-        alert(✅ Buzzer slot ${slotNumber} berhasil dimatikan.);
-      } else {
-        alert("❌ Gagal mematikan buzzer: " + (data.error || "Unknown error"));
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Terjadi kesalahan saat mematikan buzzer.");
-    });
-  }
+ fetch("/api/user-turn-off-buzzer/", {
+ method: "POST",
+ headers: {
+ "Content-Type": "application/json",
+ "X-CSRFToken": getCookie("csrftoken"),
+ },
+ body: JSON.stringify({ slot_number: slotNumber })
+ })
+ .then(res => res.json())
+ .then(data => {
+ if (data.success) {
+ // Ubah warna dan teks
+ button.innerText = "Dimatikan";
+ button.disabled = true;
+ button.classList.remove("bg-green-500", "hover:bg-green-600");
+ button.classList.add("bg-red-500");
+ alert(`✅ Buzzer slot ${slotNumber} berhasil dimatikan.`);
+ } else {
+ alert("❌ Gagal mematikan buzzer: " + (data.error || "Unknown error"));
+ }
+ })
+ .catch(err => {
+ console.error(err);
+ alert("Terjadi kesalahan saat mematikan buzzer.");
+ });
+}
+// Tambahkan fungsi JavaScript untuk Countdown dan Status di sini jika diperlukan
+// Saat ini Anda menggunakan "Loading..." untuk Countdown dan Status.
+// Anda mungkin perlu menambahkan script JS untuk mengupdate kedua elemen ini secara real-time.
+// ... (script countdown Anda di sini) ...
 </script>
 
-{% endblock %}
+{% endblock %}

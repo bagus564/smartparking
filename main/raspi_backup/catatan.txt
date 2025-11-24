@@ -6,3 +6,7 @@ Cara Kalibrasi Sensor
 4. Jangan lupa untuk selalu perhatikan IP Pada broker_address()
 5. Rumus Bunyi Pada Buzzer = DELAY_THRESHOLD x time.sleep()
 6. Restart mqtt_sub.py Pada Server
+
+untuk mrnjalankan broker laptop bagustri
+1. "C:\Program Files\mosquitto\mosquitto.exe" -v -c "C:\Program Files\mosquitto\config\mosquitto.conf"
+

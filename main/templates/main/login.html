@@ -2,13 +2,13 @@
 
 {% load static %}
 
-{% block title %}Home Page{% endblock %}
+{% block title %}Sign In{% endblock %}
 
 {% block start %}
 <title>Sign In</title> 
 
 
-   <section class="relative h-screen overflow-hidden">
+    <section class="relative h-screen overflow-hidden">
 
   <img src="{% static 'main/bg.jpg' %}" class="min-h-screen w-full object-cover" alt="">
 
@@ -54,7 +54,7 @@
         </div>
 
         {% if error %}
-          <p class="text-red-600 text-sm mb-1">{{ error }}</p>
+          <p id="login-error-message" class="hidden">{{ error }}</p>
         {% endif %}
 
         <button type="submit"
@@ -72,4 +72,47 @@
 </div>
 
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Tampilkan Error Login (dari variabel 'error' di views.py)
+    const errorMessageElement = document.getElementById('login-error-message');
+    if (errorMessageElement) {
+        const errorMessage = errorMessageElement.textContent.trim();
+        if (errorMessage) {
+            Swal.fire({
+                title: 'Login Gagal!',
+                text: errorMessage,
+                icon: 'error',
+                confirmButtonText: 'Coba Lagi'
+            });
+        }
+    }
+    
+    // 2. Tampilkan Django Messages (misalnya: pesan sukses dari register_view)
+    // Pastikan kode ini ada di base.html atau di sini jika tidak ada di base.html
+    {% if messages %}
+        {% for message in messages %}
+            // Tentukan ikon berdasarkan tag pesan
+            let icon = 'info';
+            if ('{{ message.tags }}'.includes('success')) {
+                icon = 'success';
+            } else if ('{{ message.tags }}'.includes('error')) {
+                icon = 'error';
+            } else if ('{{ message.tags }}'.includes('warning')) {
+                icon = 'warning';
+            }
+            
+            // Tampilkan pesan menggunakan SweetAlert
+            Swal.fire({
+                title: icon.charAt(0).toUpperCase() + icon.slice(1), 
+                text: "{{ message|escapejs }}", 
+                icon: icon,
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
+});
+</script>
+
 {% endblock %}
