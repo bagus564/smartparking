@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}Sign In{% endblock %}
+{% block title %}{% endblock %}
 
 {% block start %}
 <title>Sign In</title> 
@@ -10,24 +10,32 @@
 
     <section class="relative h-screen overflow-hidden">
 
-  <img src="{% static 'main/bg.jpg' %}" class="min-h-screen w-full object-cover" alt="">
+  
 
-  <div class="inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/50">
-    <div class="absolute top-6 left-6 z-20">
-        <a class="flex items-center text-2xl font-semibold">
-        <img class="w-8 h-8 mr-2" src="{% static 'main/iconweb.ico' %}" alt="logo">
-        WTP
-        </a>
-    </div>
-  </div>
+ 
 
-  <div class="absolute inset-0 flex flex-col items-center justify-center px-6 mx-auto z-10">
-  <div class="w-full animate-fade-in-down bg-white/60 backdrop-blur-2xl rounded-2xl shadow-2xl transition-all duration-500 hover:scale-[1.03] sm:max-w-md">
+<div class="absolute inset-0 flex flex-col items-center justify-center px-6 mx-auto z-20">
+  <div class="w-full bg-white rounded-2xl shadow-2xl 
+              animate-fade-in-down transition-all duration-500 hover:scale-[1.02] sm:max-w-md">
+
     <div class="p-8 space-y-6">
-      <h1 class="text-2xl font-bold text-center text-gray-900">Welcome Back</h1>
+
+      <!-- LOGO WTP DI POJOK KIRI ATAS -->
+
+
+<!-- HEADER PUTIH + LOGO SAMPING TEKS (TANPA GARIS) -->
+<div class="flex items-center justify-center gap-3 bg-white py-3 px-4 rounded-lg">
+    <img src="{% static 'main/iconweb.ico' %}" class="w-10 h-10" alt="logo">
+    <h1 class="text-2xl font-bold text-gray-900">Welcome Back</h1>
+</div>
+
+
+
+      <!-- FORM -->
       <form method="post" class="space-y-5">
         {% csrf_token %}
         {{ form }}
+
 
         <div>
           <label for="username" class="block mb-1 text-sm font-medium text-gray-700">Username</label>

@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}Home Page{% endblock %}
+{% block title %}{% endblock %}
 
 {% block start %}
 <title>Sign In Admin</title> 
@@ -10,20 +10,20 @@
 
    <section class="relative h-screen overflow-hidden">
 
-  <img src="{% static 'main/bg.jpg' %}" class="min-h-screen w-full object-cover" alt="">
-
+  
   <div class="inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/50">
     <div class="absolute top-6 left-6 z-20">
-        <a class="flex items-center text-2xl font-semibold">
-        <img class="w-8 h-8 mr-2" src="{% static 'main/iconweb.ico' %}" alt="logo">
-        WTP
-        </a>
+        
     </div>
   </div>
 
   <div class="absolute inset-0 flex flex-col items-center justify-center px-6 mx-auto z-10">
     <div class="w-full animate-fade-in-down bg-white/50 backdrop-blur-2xl rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 shadow-2xl transition-all duration-500 hover:scale-105">
       <div class="p-6 space-y-4 md:space-y-6 sm:p-8"> 
+        <a class="flex items-center text-2xl font-semibold">
+        <img class="w-8 h-8 mr-2" src="{% static 'main/iconweb.ico' %}" alt="logo">
+        WTP
+        </a>
         <h1 class="text-xl mb-6 font-bold leading-tight tracking-tight text-gray-900 md:text-2xl flex justify-center">
           Login to Admin Panel
         </h1>
