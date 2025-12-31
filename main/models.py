@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.http import JsonResponse
 
 # -----------------------------
 # Custom User
@@ -39,41 +40,65 @@ class Car(models.Model):
 # -----------------------------
 class Spot(models.Model):
     spot_number = models.CharField(max_length=20, unique=True)
-    
+    buzzer_muted = models.BooleanField(default=False)
+
     STATUS_CHOICES = [
         ('available', 'Tersedia'),
         ('reserved', 'Reservasi'),
         ('occupied', 'Tidak Tersedia'),
-        ('maintenance', 'Perbaikan'), 
+        ('maintenance', 'Perbaikan'),
     ]
-    
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='available'
+    )
     is_disabled = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True)
     buzzer_active = models.BooleanField(default=False)
 
+    # ==========================================
+    # UPDATE STATUS DARI SENSOR (FINAL LOGIC)
+    # ==========================================
     def update_status_from_distance(self, distance_cm):
-        """
-        Update status kendaraan berdasarkan jarak sensor.
-        Hanya save jika status berubah.
-        """
         if self.is_disabled:
             new_status = 'maintenance'
         else:
             new_status = 'occupied' if distance_cm < 10 else 'available'
-        
+
+        # 🚗 MOBIL BARU MASUK
+        if (
+            self.status == 'available'
+            and new_status == 'occupied'
+            and not self.buzzer_muted
+        ):
+            self.buzzer_active = True
+
+        # 🚗 MOBIL KELUAR
+        if self.status == 'occupied' and new_status == 'available':
+            self.buzzer_active = False
+            self.buzzer_muted = False
+
         if new_status != self.status:
             self.status = new_status
-            self.buzzer_active = (new_status == 'occupied')
-            self.save(update_fields=['status', 'buzzer_active', 'last_updated'])
 
+        self.save(update_fields=[
+            'status',
+            'buzzer_active',
+            'buzzer_muted',
+            'last_updated'
+        ])
+
+    # ==========================================
+    # WARNA UI
+    # ==========================================
     def get_color(self):
-        """Kembalikan warna sesuai status (buat realtime UI)"""
         colors = {
-            'available': 'bg-blue-500', 
-            'reserved': 'bg-green-500', 
-            'occupied': 'bg-red-500', 
-            'maintenance': 'bg-yellow-400', 
+            'available': 'bg-blue-500',
+            'reserved': 'bg-green-500',
+            'occupied': 'bg-red-500',
+            'maintenance': 'bg-yellow-400',
         }
         return colors.get(self.status, 'bg-gray-300')
 
@@ -194,3 +219,4 @@ class Announcement(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.start_date} - {self.end_date})"
+    

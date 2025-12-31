@@ -83,7 +83,7 @@ def on_disconnect(client, userdata, rc):
 # ==========================
 # JALANKAN MQTT CLIENT
 # ==========================
-BROKER_IP = "192.168.1.13"   # IP Raspberry Pi kamu
+BROKER_IP = "192.168.1.5"   # IP Raspberry Pi kamu
 
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -92,6 +92,5 @@ client.on_disconnect = on_disconnect
 
 print(f"🔌 Menghubungkan ke MQTT Broker {BROKER_IP} ...")
 client.connect(BROKER_IP, 1883, 60)
-
 # Loop selamanya
 client.loop_forever()

@@ -1,7 +1,7 @@
 {% extends "headfoot.html" %}
 {% load static %}
 {% block content %}
-<title>Realtime</title>
+<title>Realtime Smart Parking</title>
 
 <div class="text-center mt-8 mb-10">
     <h5 class="text-3xl font-bold text-[#141E61]">REAL TIME SMART PARKING</h5>
@@ -9,114 +9,82 @@
 
 <div class="my-4 border-4 border-[#141E61] rounded-lg shadow-[0_5px_5px_rgba(0,0,0,0.2)] relative">
 
-    <!-- Tombol di pojok kanan area yang kamu lingkari -->
     <button id="showImageBtn" 
         class="absolute right-4 top-4 bg-white text-blue-900 font-semibold 
-               px-4 py-2 rounded-lg shadow hover:bg-blue-100 transition">
+               px-4 py-2 rounded-lg shadow hover:bg-blue-100 transition z-10">
         Parking Spot View
     </button>
 
-   
-<!-- POPUP GAMBAR -->
-
-<div id="imagePopup"
-     class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-[999]">
-
-    <div class="bg-white rounded-2xl shadow-2xl w-fit max-w-[95vw] p-3">
-
-        <!-- IMAGE -->
-        <img src="/media/car_image/slot.jpeg"
-             alt="Parking Slot"
-             class="block max-w-[90vw] max-h-[75vh] rounded-xl mx-auto">
-
-        <!-- TEXT BELOW IMAGE -->
-        <p class="text-center mt-2 text-sm font-semibold text-[#141E61] tracking-wide">
-            PARKING SLOT
-        </p>
-
-        <!-- BUTTON CLOSE -->
-        <button id="closePopup"
-                class="mt-3 w-full bg-[#141E61] text-white py-2 rounded-xl
-                       hover:bg-blue-800 transition font-medium">
-            Close
-        </button>
-
+    <div id="imagePopup"
+         class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-[999]">
+        <div class="bg-white rounded-2xl shadow-2xl w-fit max-w-[95vw] p-3">
+            <img src="/media/car_image/slot.jpeg"
+                 alt="Parking Slot"
+                 class="block max-w-[90vw] max-h-[75vh] rounded-xl mx-auto">
+            <p class="text-center mt-2 text-sm font-semibold text-[#141E61] tracking-wide">
+                PARKING SLOT
+            </p>
+            <button id="closePopup"
+                    class="mt-3 w-full bg-[#141E61] text-white py-2 rounded-xl
+                           hover:bg-blue-800 transition font-medium">
+                Close
+            </button>
+        </div>
     </div>
-</div>
-
-
 
     <div class="md:p-4 p-2 text-center flex justify-center md:text-2xl text-md bg-[#141E61] font-medium text-white">
         Where would you like to park?
     </div>
 
     <div class="overflow-x-auto py-6">
-
-        <!-- LEFT COLUMN -->
-       <div class="grid grid-cols-5 gap-8 justify-items-center mb-10">
-    {% for slot in left_row %}
-    <div id="slot-{{ slot.spot_number }}" class="flex flex-col items-center">
-
-        <div class="w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-lg
-            {% if slot.status == 'Terisi' %} bg-red-500
-            {% elif slot.status == 'Kosong' %} bg-green-500
-            {% else %} bg-gray-400 {% endif %}">
-            <img src="{% static 'main/car1.png' %}" class="w-12">
+        <div class="grid grid-cols-5 gap-8 justify-items-center mb-10">
+            {% for slot in left_row %}
+            <div id="slot-{{ slot.spot_number }}" class="flex flex-col items-center">
+                <div class="slot-box w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-lg transition-colors duration-500
+                    {% if slot.status == 'Terisi' %} bg-red-500
+                    {% elif slot.status == 'Kosong' %} bg-green-500
+                    {% else %} bg-gray-400 {% endif %}">
+                    <img src="{% static 'main/car1.png' %}" class="w-12">
+                </div>
+                <div class="mt-3 text-center space-y-1">
+                    <div class="text-sm font-bold text-[#141E61]">Slot {{ slot.spot_number }}</div>
+                    <div class="slot-status text-xs font-semibold
+                        {% if slot.status == 'Terisi' %} text-red-500
+                        {% elif slot.status == 'Kosong' %} text-green-600
+                        {% else %} text-gray-500 {% endif %}">
+                        {{ slot.status }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
 
-        <div class="mt-3 text-center space-y-1">
-            <div class="text-sm font-bold text-[#141E61]">
-                Slot {{ slot.spot_number }}
-            </div>
-
-            <div class="text-xs font-semibold
-                {% if slot.status == 'Terisi' %} text-red-500
-                {% elif slot.status == 'Kosong' %} text-green-600
-                {% else %} text-gray-500 {% endif %}">
-                {{ slot.status }}
-            </div>
-        </div>
-
-    </div>
-    {% endfor %}
-</div>
-
-
-        <!-- RIGHT COLUMN -->
         <div class="grid grid-cols-5 gap-8 justify-items-center">
-    {% for slot in right_row %}
-    <div id="slot-{{ slot.spot_number }}" class="flex flex-col items-center">
-
-        <div class="w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-lg
-            {% if slot.status == 'Terisi' %} bg-red-500
-            {% elif slot.status == 'Kosong' %} bg-green-500
-            {% else %} bg-gray-400 {% endif %}">
-            <img src="{% static 'main/car2.png' %}" class="w-12">
-        </div>
-
-        <div class="mt-3 text-center space-y-1">
-            <div class="text-sm font-bold text-[#141E61]">
-                Slot {{ slot.spot_number }}
+            {% for slot in right_row %}
+            <div id="slot-{{ slot.spot_number }}" class="flex flex-col items-center">
+                <div class="slot-box w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-lg transition-colors duration-500
+                    {% if slot.status == 'Terisi' %} bg-red-500
+                    {% elif slot.status == 'Kosong' %} bg-green-500
+                    {% else %} bg-gray-400 {% endif %}">
+                    <img src="{% static 'main/car2.png' %}" class="w-12">
+                </div>
+                <div class="mt-3 text-center space-y-1">
+                    <div class="text-sm font-bold text-[#141E61]">Slot {{ slot.spot_number }}</div>
+                    <div class="slot-status text-xs font-semibold
+                        {% if slot.status == 'Terisi' %} text-red-500
+                        {% elif slot.status == 'Kosong' %} text-green-600
+                        {% else %} text-gray-500 {% endif %}">
+                        {{ slot.status }}
+                    </div>
+                </div>
             </div>
-
-            <div class="text-xs font-semibold
-                {% if slot.status == 'Terisi' %} text-red-500
-                {% elif slot.status == 'Kosong' %} text-green-600
-                {% else %} text-gray-500 {% endif %}">
-                {{ slot.status }}
-            </div>
+            {% endfor %}
         </div>
-
     </div>
-    {% endfor %}
 </div>
 
-
-<!-- Informasi Acara -->
 <div class="mt-10 w-[90%] max-w-5xl mx-auto">
-    
-    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-8">
-        
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-8 pb-10">
         <div class="mt-6 lg:mt-0 flex-shrink-0">
             <h3 class="text-lg font-bold mb-4 text-[#141E61]">KETERANGAN STATUS</h3>
             <ul class="text-sm bg-white p-6 rounded-md shadow-md space-y-2 border-l-4 border-[#141E61]">
@@ -125,75 +93,79 @@
                 <li><span class="inline-block w-5 h-5 bg-gray-400 mr-2 rounded-sm"></span> Abu-abu: Perbaikan/Acara</li>
             </ul>
         </div>
-
         <div class="w-full lg:w-3/5">
             <h3 class="text-lg font-bold mb-4 text-[#141E61]">INFORMASI ACARA & PEMELIHARAAN</h3>
             <div id="announcementContainer">
                 <p class="text-gray-500">Memuat pengumuman...</p>
             </div>
         </div>
-
     </div>
 </div>
 
-<!-- Popup Script -->
 <script>
-document.getElementById("showImageBtn").onclick = function() {
-    document.getElementById("imagePopup").classList.remove("hidden");
-};
+    /* 1. Logika Popup Gambar */
+    document.getElementById("showImageBtn").onclick = () => document.getElementById("imagePopup").classList.remove("hidden");
+    document.getElementById("closePopup").onclick = () => document.getElementById("imagePopup").classList.add("hidden");
 
-document.getElementById("closePopup").onclick = function() {
-    document.getElementById("imagePopup").classList.add("hidden");
-};
-</script>
-<script>
-function loadUserAnnouncements() {
-    fetch('{% url "get_announcements_list" %}')
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById("announcementContainer");
+    /* 2. Logika Auto-Update Status Slot (Real-time) */
+    function updateParkingStatus() {
+        fetch('{% url "realtime_data" %}')
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(slot => {
+                    const container = document.getElementById(`slot-${slot.spot_number}`);
+                    if (container) {
+                        const box = container.querySelector('.slot-box');
+                        const statusText = container.querySelector('.slot-status');
 
-            if (!data || data.length === 0) {
-                container.innerHTML = `<p class="text-gray-500">Tidak ada pengumuman.</p>`;
-                return;
-            }
+                        // Update Warna Box & Teks berdasarkan status
+                        if (slot.status === 'Terisi') {
+                            box.className = 'slot-box w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-lg transition-colors duration-500 bg-red-500';
+                            statusText.className = 'slot-status text-xs font-semibold text-red-500';
+                        } else if (slot.status === 'Kosong') {
+                            box.className = 'slot-box w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-lg transition-colors duration-500 bg-green-500';
+                            statusText.className = 'slot-status text-xs font-semibold text-green-600';
+                        } else {
+                            box.className = 'slot-box w-[120px] h-[120px] rounded-2xl flex items-center justify-center shadow-lg transition-colors duration-500 bg-gray-400';
+                            statusText.className = 'slot-status text-xs font-semibold text-gray-500';
+                        }
+                        statusText.innerText = slot.status;
+                    }
+                });
+            })
+            .catch(err => console.error("Gagal update status:", err));
+    }
 
-            let html = `<div class="space-y-4">`;
-
-            data.forEach(a => {
-                const colorMap = {
-                    yellow: 'border-yellow-500',
-                    red: 'border-red-500',
-                    gray: 'border-gray-500'
-                };
-
-                html += `
-                    <div class="p-4 bg-white rounded-lg shadow border-l-4 ${colorMap[a.label_color]}">
-                        <h4 class="font-semibold text-[#141E61]">${a.title}</h4>
-                        ${a.description ? `<p class="text-sm text-gray-700">${a.description}</p>` : ''}
-                        <p class="text-xs text-gray-500 mt-2">
-                            Slot: ${a.slot_numbers} <br>
-                            ${a.start_date} – ${a.end_date}
-                        </p>
-                    </div>
-                `;
+    /* 3. Logika Load Pengumuman */
+    function loadUserAnnouncements() {
+        fetch('{% url "get_announcements_list" %}')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("announcementContainer");
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<p class="text-gray-500">Tidak ada pengumuman.</p>`;
+                    return;
+                }
+                let html = `<div class="space-y-4">`;
+                data.forEach(a => {
+                    const colorMap = { yellow: 'border-yellow-500', red: 'border-red-500', gray: 'border-gray-500' };
+                    html += `
+                        <div class="p-4 bg-white rounded-lg shadow border-l-4 ${colorMap[a.label_color]}">
+                            <h4 class="font-semibold text-[#141E61]">${a.title}</h4>
+                            ${a.description ? `<p class="text-sm text-gray-700">${a.description}</p>` : ''}
+                            <p class="text-xs text-gray-500 mt-2">Slot: ${a.slot_numbers} <br> ${a.start_date} – ${a.end_date}</p>
+                        </div>`;
+                });
+                container.innerHTML = html + `</div>`;
             });
+    }
 
-            html += `</div>`;
-            container.innerHTML = html;
-        })
-        .catch(err => {
-            console.error(err);
-            document.getElementById("announcementContainer").innerHTML =
-                `<p class="text-red-500">Gagal memuat pengumuman</p>`;
-        });
-}
+    // Interval Update
+    setInterval(updateParkingStatus, 2000); // Update sensor tiap 2 detik
+    setInterval(loadUserAnnouncements, 10000); // Update pengumuman tiap 10 detik
 
-// load saat halaman dibuka
-loadUserAnnouncements();
-
-// optional realtime refresh tiap 10 detik
-setInterval(loadUserAnnouncements, 10000);
+    // Jalankan sekali saat start
+    updateParkingStatus();
+    loadUserAnnouncements();
 </script>
-
 {% endblock %}

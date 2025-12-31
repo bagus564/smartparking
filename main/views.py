@@ -504,8 +504,6 @@ def spots_dynamic_status_json(request):
             status = "disabled"
         else:
             if selected_date == today:
-                # 🟢 LOGIKA PERBAIKAN: HARI INI
-                # Cek reservasi yang benar-benar masih aktif (end_time belum lewat dari waktu sekarang)
                 has_active_reservation_now = Reservation.objects.filter(
                     spot=spot,
                     start_time__date=selected_date,
@@ -700,12 +698,13 @@ def toggle_spot_disable(request):
 
                 # Kirim MQTT
                 topic = f"parkir/slot{spot_number}/buzzer"
-                payload = "disabled" if disable else "enable"
+                payload = "off" if disable else "on"
+
 
                 publish.single(
                     topic,
                     payload,
-                    hostname="192.168.12.151",
+                    hostname="192.168.1.5",
                     port=1883,
                     timeout=2 
                 )
@@ -739,13 +738,14 @@ def admin_turn_off_buzzer(request):
         try:
             spot = Spot.objects.get(spot_number=slot_number)
             spot.buzzer_active = False
-            spot.save()
+            spot.buzzer_muted = True
+            spot.save(update_fields=['buzzer_active', 'buzzer_muted'])
 
             topic = f"parkir/slot{slot_number}/buzzer"
             publish.single(
                 topic,
                 "off",
-                hostname="192.168.12.151",
+                hostname="192.168.1.5",
                 port=1883
             )
             print(f"✅ Buzzer untuk slot {slot_number} dimatikan oleh admin.")
@@ -760,9 +760,9 @@ def admin_turn_off_buzzer(request):
 # ====================================================
 #                USER MATIKAN BUZZER
 # ====================================================
+@csrf_exempt
 @require_POST
 @login_required
-@csrf_exempt
 def user_turn_off_buzzer(request):
     data = json.loads(request.body)
     slot_number = data.get("slot_number")
@@ -788,13 +788,14 @@ def user_turn_off_buzzer(request):
 
         # Jika lolos → boleh matikan buzzer
         spot.buzzer_active = False
-        spot.save()
+        spot.buzzer_muted = True
+        spot.save(update_fields=['buzzer_active', 'buzzer_muted'])
 
         topic = f"parkir/slot{slot_number}/buzzer"
         publish.single(
             topic,
             "off",
-            hostname="192.168.12.151",
+            hostname="192.168.1.5",
             port=1883
         )
 
@@ -839,7 +840,7 @@ def toggle_all_spots_disable(request):
                 publish.single(
                     topic,
                     mqtt_payload,
-                    hostname="192.168.12.151",
+                    hostname="192.168.1.5",
                     port=1883,
                     keepalive=3,
                     timeout=3 
@@ -1119,3 +1120,14 @@ def delete_announcement(request, pk):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
     
+
+def spot_status_api(request):
+    spots = Spot.objects.all()
+    data = []
+    for spot in spots:
+        data.append({
+            "spot_number": spot.spot_number,
+            "status": spot.status,
+            "buzzer_active": spot.buzzer_active
+        })
+    return JsonResponse(data, safe=False)

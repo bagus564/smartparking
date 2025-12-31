@@ -2,7 +2,8 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import *
-from .views import export_reservations, toggle_all_spots_disable, spots_state, delete_announcement
+from .views import export_reservations, toggle_all_spots_disable, spots_state, delete_announcement, spot_status_api
+
 
 urlpatterns = [
     # --- AUTH ---
@@ -37,6 +38,7 @@ urlpatterns = [
     path('api/get-announcement/', get_announcements_list, name='get_announcements_list'),
     path('api/announcements/', get_active_announcements, name='get_active_announcements'),
     path('api/announcement/delete/<int:pk>/', delete_announcement, name='delete_announcement'),
+    path('api/spot-status/', spot_status_api, name='spot_status_api'),
 
 
     # --- ADMIN PAGES ---

@@ -55,7 +55,7 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
-BROKER = "192.168.1.13"   # ubah bila perlu
+BROKER = "192.168.1.5"   # ubah bila perlu
 
 print("Mencoba konek ke broker:", BROKER)
 client.connect(BROKER, 1883, 60)

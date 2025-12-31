@@ -6,7 +6,7 @@ from datetime import datetime
 # ==========================
 # Konfigurasi MQTT DI RASPI
 # ==========================
-BROKER = "192.168.1.8"
+BROKER = "10.20.247.41"
 PORT = 1883
 
 TOPICS = {

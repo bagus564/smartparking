@@ -1,0 +1,16 @@
+# Python Virtual Environment (Ini yang bikin 5000+ file)
+.venv/
+venv/
+env/
+
+# Python Cache
+**/__pycache__/
+*.py[cod]
+
+# Database
+db.sqlite3
+
+# IntelliJ/PyCharm files (Isi yang tadi kamu punya)
+.idea/
+*.iws
+/out/
