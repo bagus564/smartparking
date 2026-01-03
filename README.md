@@ -27,7 +27,7 @@ Ikuti langkah-langkah berikut untuk mulai bekerja di lokal:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/TzyProgrammer/Parkwell.git
+https://github.com/bagus564/smartparking.git
 cd Parkwell
 
 # 2. Buat virtual environment
