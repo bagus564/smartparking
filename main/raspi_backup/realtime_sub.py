@@ -20,12 +20,12 @@ from main.models import RealTimeSpot
 # TOPIK → SLOT
 # ==========================
 topic_to_spot = {
-    "monitor/slot1": "Slot 1",
-    "monitor/slot2": "Slot 2",
-    "monitor/slot3": "Slot 3",
-    "monitor/slot4": "Slot 4",
-    "monitor/slot5": "Slot 5",
-    "monitor/slot6": "Slot 6",
+    "monitor/slot1": "1",
+    "monitor/slot2": "2",
+    "monitor/slot3": "3",
+    "monitor/slot4": "4",
+    "monitor/slot5": "5",
+    "monitor/slot6": "6",
 }
 
 
@@ -56,9 +56,14 @@ def on_message(client, userdata, msg):
         print(f"📏 Jarak: {distance} cm")
         print(f"🚗 Slot   : {slot_number}")
 
-        spot, created = RealTimeSpot.objects.get_or_create(spot_number=slot_number)
+        # ❌ JANGAN BUAT SLOT BARU
+        try:
+            spot = RealTimeSpot.objects.get(spot_number=slot_number)
+        except RealTimeSpot.DoesNotExist:
+            print(f"⚠️ Slot {slot_number} belum terdaftar! Abaikan data.")
+            return
 
-        # Update status slot
+        # ✅ UPDATE STATUS SAJA
         spot.update_status_from_distance(distance)
 
         print(f"🔄 Status diperbarui: {spot.status}")
@@ -66,6 +71,7 @@ def on_message(client, userdata, msg):
 
     except Exception as e:
         print(f"⚠️ ERROR memproses pesan dari {msg.topic}: {e}")
+
 
 
 def on_disconnect(client, userdata, rc):
