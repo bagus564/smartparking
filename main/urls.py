@@ -3,6 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import *
 from .views import export_reservations, toggle_all_spots_disable, spots_state, delete_announcement, spot_status_api
+from . import views
 
 
 urlpatterns = [
@@ -56,6 +57,7 @@ urlpatterns = [
     path("adminreservation/spots-state/", spots_state, name="spots_state"),
     path('admin/mass-cancel-reservations/', mass_delete_reservations, name='mass_delete_reservations'),
     path('admin/all-reservations/', adminallreservations_view, name='adminallreservations'),
+    path('parking/export-excel/', views.export_parking_complex_excel, name='export_parking_complex_excel'),
 ]
 
 # Serve media during development

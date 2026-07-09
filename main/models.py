@@ -220,3 +220,13 @@ class Announcement(models.Model):
     def __str__(self):
         return f"{self.title} ({self.start_date} - {self.end_date})"
     
+class ParkingLog(models.Model):
+    spot_number = models.CharField(max_length=10)
+    date = models.DateField(default=timezone.now)
+    start_time = models.DateTimeField(help_text="Waktu mobil masuk / sensor mendeteksi Terisi")
+    end_time = models.DateTimeField(null=True, blank=True, help_text="Waktu mobil keluar")
+    duration_minutes = models.IntegerField(null=True, blank=True, help_text="Durasi parkir dalam menit")
+
+    def __str__(self):
+        return f"Log {self.spot_number} - {self.date} ({self.duration_minutes or 0} min)"
+    

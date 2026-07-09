@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
-from .models import CustomUser, Spot, Reservation, Car, RealTimeSpot, Announcement
+from .models import CustomUser, Spot, Reservation, Car, RealTimeSpot, Announcement, ParkingLog
 from django.contrib import messages
 import logging
 from datetime import datetime, time, date, timedelta
@@ -16,6 +16,10 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt 
 from django.contrib.admin.views.decorators import staff_member_required
 from functools import wraps
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from openpyxl.chart import BarChart, Reference
 import json
 import csv
 import re
@@ -902,6 +906,276 @@ def export_reservations(request):
             (r.car.color if r.car else ""),
             (r.car.license_plate if r.car else ""),
         ])
+    return response
+
+@login_required
+def export_parking_complex_excel(request):
+    # 1. Hitung jumlah data log di database untuk menentukan baris dinamis (Anti-Circular Reference)
+    log_count = ParkingLog.objects.count()
+    end_data_row = 4 + log_count  # Baris data terakhir di tab log (karena header di baris 4)
+
+    wb = openpyxl.Workbook()
+    
+    # Kumpulan Palet Warna Tema Terstruktur (Deep Navy, Ice Blue, Slate)
+    navy_dark = "141E61"
+    slate_gray = "475569"
+    ice_blue = "F0F4F8"
+    border_color = "CBD5E1"
+
+    # Pengaturan Tipografi Font (Segoe UI agar clean dan modern)
+    font_title = Font(name="Segoe UI", size=16, bold=True, color=navy_dark)
+    font_subtitle = Font(name="Segoe UI", size=9, italic=True, color="64748B")
+    font_section = Font(name="Segoe UI", size=12, bold=True, color=navy_dark)
+    font_header = Font(name="Segoe UI", size=11, bold=True, color="FFFFFF")
+    font_kpi_val = Font(name="Segoe UI", size=16, bold=True, color=navy_dark)
+    font_kpi_lbl = Font(name="Segoe UI", size=9, bold=False, color="64748B")
+    font_data = Font(name="Segoe UI", size=10)
+    font_total = Font(name="Segoe UI", size=10, bold=True)
+
+    fill_header_navy = PatternFill(start_color=navy_dark, end_color=navy_dark, fill_type="solid")
+    fill_header_slate = PatternFill(start_color=slate_gray, end_color=slate_gray, fill_type="solid")
+    fill_kpi = PatternFill(start_color=ice_blue, end_color=ice_blue, fill_type="solid")
+    fill_zebra = PatternFill(start_color="F8FAFC", end_color="F8FAFC", fill_type="solid")
+    
+    thin_side = Side(border_style="thin", color=border_color)
+    border_data = Border(left=thin_side, right=thin_side, top=thin_side, bottom=thin_side)
+    align_center = Alignment(horizontal="center", vertical="center")
+    align_left = Alignment(horizontal="left", vertical="center")
+
+    # -------------------------------------------------------------
+    # TAB 1: DASHBOARD ANALITIK & GRAFIK MUTAHHIR
+    # -------------------------------------------------------------
+    ws_dash = wb.active
+    ws_dash.title = "Dashboard Analitik"
+    ws_dash.views.sheetView[0].showGridLines = True
+
+    ws_dash["B2"] = "DASHBOARD UTILISASI FASILITAS PARKIR UMUM (FREE)"
+    ws_dash["B2"].font = font_title
+    ws_dash["B3"] = f"Laporan statistik di-generate pada: {timezone.now().strftime('%d-%m-%Y %H:%M:%S')}"
+    ws_dash["B3"].font = font_subtitle
+
+    # Logika Formula Terbuka: Jika data log masih kosong, tampilkan 0 secara aman
+    if log_count > 0:
+        formula_total_masuk = f"=COUNTA('Riwayat Log Parkir'!B5:B{end_data_row})"
+        formula_rata_durasi = f"=IFERROR(AVERAGE('Riwayat Log Parkir'!E5:E{end_data_row}), 0)"
+        formula_akumulasi_jam = f"=IFERROR(SUM('Riwayat Log Parkir'!E5:E{end_data_row})/60, 0)"
+    else:
+        formula_total_masuk = 0
+        formula_rata_durasi = 0
+        formula_akumulasi_jam = 0
+
+    kpis = [
+        ("Total Kapasitas Slot", "10 Slot", "B5", "B6"),
+        ("Total Kendaraan Masuk", formula_total_masuk, "D5", "D6"),
+        ("Rata-rata Durasi Parkir", formula_rata_durasi, "F5", "F6"),
+        ("Total Waktu Okupansi", formula_akumulasi_jam, "H5", "H6")
+    ]
+
+    for title, formula, cell_lbl, cell_val in kpis:
+        ws_dash[cell_lbl] = title
+        ws_dash[cell_lbl].font = font_kpi_lbl
+        ws_dash[cell_lbl].fill = fill_kpi
+        ws_dash[cell_lbl].alignment = align_center
+        ws_dash[cell_lbl].border = border_data
+        
+        ws_dash[cell_val] = formula
+        ws_dash[cell_val].font = font_kpi_val
+        ws_dash[cell_val].fill = fill_kpi
+        ws_dash[cell_val].alignment = align_center
+        ws_dash[cell_val].border = border_data
+        if "SUM" in str(formula):
+            ws_dash[cell_val].number_format = '#,##0.0" Jam"'
+        elif "AVERAGE" in str(formula):
+            ws_dash[cell_val].number_format = '#,##0" Menit"'
+
+    # Tabel Distribusi Frekuensi Penggunaan Slot Parkir
+    ws_dash["B9"] = "Frekuensi Kepadatan Aktivitas Per Slot"
+    ws_dash["B9"].font = font_section
+
+    headers_freq = ["Slot ID", "Total Log Kendaraan"]
+    for c_num, h in enumerate(headers_freq, 2):
+        cell = ws_dash.cell(row=11, column=c_num, value=h)
+        cell.font = font_header
+        cell.fill = fill_header_navy
+        cell.alignment = align_center
+
+    realtime_slots = RealTimeSpot.objects.all().order_by('spot_number')
+    for idx, s in enumerate(realtime_slots):
+        r = 12 + idx
+        slot_label_formatted = f"Slot{s.spot_number}" # Mengikuti format tanpa spasi seperti video
+        ws_dash.cell(row=r, column=2, value=slot_label_formatted).font = font_data
+        ws_dash.cell(row=r, column=2).border = border_data
+        ws_dash.cell(row=r, column=2).alignment = align_center
+        
+        if log_count > 0:
+            formula_count_if = f"=COUNTIF('Riwayat Log Parkir'!B$5:B${end_data_row}, \"{slot_label_formatted}\")"
+        else:
+            formula_count_if = 0
+
+        ws_dash.cell(row=r, column=3, value=formula_count_if).font = font_data
+        ws_dash.cell(row=r, column=3).border = border_data
+        ws_dash.cell(row=r, column=3).alignment = align_center
+
+    # Render Grafik Batang (Bar Chart) di Samping Tabel Frekuensi
+    chart = BarChart()
+    chart.type = "col"
+    chart.title = "Grafik Mobilitas Kendaraan Umum Per Slot"
+    chart.y_axis.title = "Frekuensi Kendaraan"
+    chart.x_axis.title = "Nomor Slot Parkir"
+    
+    data_ref = Reference(ws_dash, min_col=3, min_row=11, max_row=11+len(realtime_slots))
+    cats_ref = Reference(ws_dash, min_col=2, min_row=12, max_row=11+len(realtime_slots))
+    chart.add_data(data_ref, titles_from_data=True)
+    chart.set_categories(cats_ref)
+    chart.legend = None
+    chart.width = 16
+    chart.height = 10
+    ws_dash.add_chart(chart, "E9")
+
+    # -------------------------------------------------------------
+    # TAB 2: KONDISI STATUS FISIK PARKIR REALTIME
+    # -------------------------------------------------------------
+    ws_real = wb.create_sheet(title="Status Realtime")
+    ws_real.views.sheetView[0].showGridLines = True
+
+    ws_real["A1"] = "MONITORING KONDISI SLOT REALTIME SENSOR"
+    ws_real["A1"].font = Font(name="Segoe UI", size=14, bold=True, color=navy_dark)
+    ws_real["A2"] = "Menampilkan data okupansi slot fisik yang tertangkap oleh sensor ultrasonik saat ini."
+    ws_real["A2"].font = font_subtitle
+
+    headers_real = ["No. Slot", "Status Terkini", "Jarak Sensor", "Kondisi Aktual", "Buzzer Warning"]
+    ws_real.append([])
+    ws_real.append(headers_real)
+
+    fill_green = PatternFill(start_color='DCFCE7', end_color='DCFCE7', fill_type='solid')
+    fill_red = PatternFill(start_color='FEE2E2', end_color='FEE2E2', fill_type='solid')
+    fill_gray = PatternFill(start_color='F1F5F9', end_color='F1F5F9', fill_type='solid')
+
+    for idx, slot in enumerate(realtime_slots):
+        r = 5 + idx
+        spot_name = f"Slot{slot.spot_number}"
+        status_text = slot.status
+        distance_str = f"{slot.distance} cm" if status_text != 'Disabled' else "-"
+        
+        cond_text = "Tersedia / Bebas" if status_text == "Kosong" else ("Kendaraan Terdeteksi" if status_text == "Terisi" else "Maintenance (Acara)")
+        buzzer_status = "ON (Terlalu Dekat)" if (status_text == "Terisi" and slot.distance < 5.0) else "OFF"
+
+        ws_real.append([spot_name, status_text, distance_str, cond_text, buzzer_status])
+        
+        for col_num in range(1, 6):
+            cell = ws_real.cell(row=r, column=col_num)
+            cell.font = font_data
+            cell.border = border_data
+            cell.alignment = align_center if col_num != 4 else align_left
+            if idx % 2 == 1:
+                cell.fill = fill_zebra
+                
+            if col_num == 2:
+                if status_text == 'Kosong':
+                    cell.fill = fill_green
+                    cell.font = Font(name="Segoe UI", size=10, bold=True, color="15803D")
+                elif status_text == 'Terisi':
+                    cell.fill = fill_red
+                    cell.font = Font(name="Segoe UI", size=10, bold=True, color="B91C1C")
+                else:
+                    cell.fill = fill_gray
+                    cell.font = Font(name="Segoe UI", size=10, bold=True, color="475569")
+
+    # -------------------------------------------------------------
+    # TAB 3: RIWAYAT LOG PARKIR (FORMAT SESUAI VIDEO REFERENSI)
+    # -------------------------------------------------------------
+    ws_log = wb.create_sheet(title="Riwayat Log Parkir")
+    ws_log.views.sheetView[0].showGridLines = True
+
+    ws_log["A1"] = "LOG UTILISASI DAN REKAM JEJAK SENSOR"
+    ws_log["A1"].font = Font(name="Segoe UI", size=14, bold=True, color=navy_dark)
+    ws_log["A2"] = "Rekam jejak jam masuk dan keluar kendaraan pada fasilitas parkir bebas biaya tiket."
+    ws_log["A2"].font = font_subtitle
+
+    # Kolom persis menyerupai referensi video pertama kamu
+    headers_log = ["Date", "SlotID", "Start Time", "End Time", "Parking Duration\n(minutes)", "Status Sesi"]
+    ws_log.append([])
+    ws_log.append(headers_log)
+    ws_log.row_dimensions[4].height = 25
+
+    for col_idx, text in enumerate(headers_log, 1):
+        cell = ws_log.cell(row=4, column=col_idx, value=text)
+        cell.font = font_header
+        cell.fill = fill_header_slate
+        cell.alignment = align_center
+        cell.border = border_data
+
+    # Ambil log aktivitas kendaraan masuk-keluar
+    logs = ParkingLog.objects.all().order_by('-start_time')
+    
+    current_row = 5
+    for idx, log in enumerate(logs):
+        ws_log.row_dimensions[current_row].height = 20
+        
+        date_str = log.date.strftime('%d/%m/%Y')
+        slot_str = f"Slot{log.spot_number}" # Sesuai video (tanpa spasi)
+        start_str = log.start_time.astimezone(timezone.get_current_timezone()).strftime('%H:%M:%S')
+        
+        if log.end_time:
+            end_str = log.end_time.astimezone(timezone.get_current_timezone()).strftime('%H:%M:%S')
+            session_status = "Selesai Sesi"
+        else:
+            end_str = "-"
+            session_status = "Aktif (Huni)"
+            
+        duration_val = log.duration_minutes if log.duration_minutes is not None else 0
+
+        ws_log.append([date_str, slot_str, start_str, end_str, duration_val, session_status])
+        
+        for col_num in range(1, 7):
+            cell = ws_log.cell(row=current_row, column=col_num)
+            cell.font = font_data
+            cell.border = border_data
+            cell.alignment = align_center
+            if idx % 2 == 1:
+                cell.fill = fill_zebra
+                
+        current_row += 1
+
+    # Baris Total Akumulasi Menit
+    ws_log.cell(row=current_row, column=1, value="TOTAL MENIT OPERASIONAL").font = font_total
+    ws_log.cell(row=current_row, column=1).alignment = align_center
+    ws_log.cell(row=current_row, column=1).border = border_data
+    
+    for c in range(2, 5):
+        ws_log.cell(row=current_row, column=c).border = border_data
+        
+    if log_count > 0:
+        cell_tot_dur = ws_log.cell(row=current_row, column=5, value=f"=SUM(E5:E{current_row-1})")
+    else:
+        cell_tot_dur = ws_log.cell(row=current_row, column=5, value=0)
+        
+    cell_tot_dur.font = font_total
+    cell_tot_dur.alignment = align_center
+    cell_tot_dur.border = border_data
+    cell_tot_dur.number_format = '#,##0" Menit"'
+    
+    ws_log.cell(row=current_row, column=6).border = border_data
+
+    # -------------------------------------------------------------
+    # PENYESUAIAN MANUAL LEBAR KOLOM AGAR PRESISI
+    # -------------------------------------------------------------
+    for ws in wb.worksheets:
+        for col in ws.columns:
+            max_len = 0
+            col_letter = get_column_letter(col[0].column)
+            for cell in col:
+                if cell.row in [1, 2, 3] and ws.title == "Dashboard Analitik":
+                    continue
+                if cell.value:
+                    max_len = max(max_len, len(str(cell.value)))
+            ws.column_dimensions[col_letter].width = max(max_len + 4, 15)
+
+    # Membuka gerbang response download xlsx browser
+    filename = f"Laporan_Analitik_Parkwell_{timezone.now().strftime('%Y%m%d')}.xlsx"
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
     return response
 
 # ---------------------------------------------------
